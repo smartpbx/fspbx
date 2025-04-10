@@ -352,13 +352,11 @@ class UsersController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    function update(Request $request, User $user)
+    public function update(Request $request, User $user)
     {
-
         $attributes = [
             'user_email' => 'email',
             'groups' => 'roles'
-            
         ];
 
         $validator = Validator::make($request->all(), [
@@ -370,106 +368,43 @@ class UsersController extends Controller
                 'email:rfc'
             ],
             'groups' => 'required|array',
-            'time_zone' => 'nullable',
-            'language' => 'nullable',
-            'user_enabled' => 'present', 
-            'domains' => 'nullable',
-            'domain_groups' => 'nullable'
-  
-        ], [], $attributes);
+            'is_on_premise' => 'nullable|boolean',
+            'on_premise_pbx_ip' => 'nullable|string|ipv4',
+        ]);
 
         if ($validator->fails()) {
-            return response()->json(['error'=>$validator->errors()]);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Retrieve the validated input assign all attributes
-        $attributes = $validator->validated();
-        if (isset($attributes['user_enabled']) && $attributes['user_enabled']== "on")  $attributes['user_enabled'] = "true";
+        // Update user basic info
+        $user->user_email = $request->user_email;
+        $user->user_enabled = $request->user_enabled;
+        $user->save();
 
-        // Update user permission group table
-        foreach($user->user_groups as $user_group) {
-            $user_group->delete();
-        }
-
-        if (isset($attributes['groups'])) {
-            foreach($attributes['groups'] as $group){
-                $group_name = Groups::where('group_uuid',$group)->pluck('group_name')->first();
-                    $user_group=new UserGroup();
-                    $user_group->domain_uuid = Session::get('domain_uuid');
-                    $user_group->group_name = $group_name;
-                    $user_group->group_uuid = $group;
-                    $user_group->update_date = date('Y-m-d H:i:s');
-                    $user_group->update_user = Session::get('user_uuid');
-                    $user->user_groups()->save($user_group);
-            }
-        }       
- 
-        //Make username by combining first name and last name
-        $attributes['username'] = $attributes['first_name'];
-        if(!empty($attributes['last_name'])){
-            $attributes['username'] .= '_' . $attributes['last_name'];
-        }
-        $attributes['user_email'] = strtolower(trim($attributes['user_email']));
+        // Update user advanced fields
+        $userAdvFields = $user->user_adv_fields ?? new UserAdvFields();
+        $userAdvFields->user_uuid = $user->user_uuid;
+        $userAdvFields->first_name = $request->first_name;
+        $userAdvFields->last_name = $request->last_name;
         
-        $attributes['add_user'] = Auth::user()->username;
-        $user->update($attributes);    
-
-
-        $user_name_info=$user->user_adv_fields;
-        if(empty($user_name_info)){
-            $user_name_info=new UserAdvFields();
+        // Only update on-premise fields if user is superadmin
+        if (isSuperAdmin()) {
+            $userAdvFields->is_on_premise = $request->is_on_premise ?? false;
+            $userAdvFields->on_premise_pbx_ip = $request->on_premise_pbx_ip;
         }
-        $user_name_info->first_name = $attributes['first_name'];
-        $user_name_info->last_name = $attributes['last_name'];
-        $user->user_adv_fields()->save($user_name_info);
-
         
-        if (isSuperAdmin()){
-            $user->domain_permissions()->delete();
-            if (isset($attributes['domains'])) {
-                foreach($attributes['domains'] as $res_domain){
-                    $dom_per=new UserDomainPermission();
-                    $dom_per->domain_uuid=$res_domain;
-                    $user->domain_permissions()->save($dom_per);
-                }
-            }
+        $userAdvFields->save();
 
-            $user->domain_group_permissions()->delete();
-            if (isset($attributes['domain_groups'])) {
-                foreach($attributes['domain_groups'] as $domain_group){
-                    $dom_per = new UserDomainGroupPermissions();
-                    $dom_per->domain_group_uuid = $domain_group;
-                    $user->domain_group_permissions()->save($dom_per);
-                }
-            }
+        // Update user groups
+        UserGroup::where('user_uuid', $user->user_uuid)->delete();
+        foreach ($request->groups as $group_uuid) {
+            $userGroup = new UserGroup();
+            $userGroup->user_uuid = $user->user_uuid;
+            $userGroup->group_uuid = $group_uuid;
+            $userGroup->save();
         }
 
-        //Save user language and time zone
-        $user->setting()->delete();
-        $language=new UserSetting();
-        $language->domain_uuid = Session::get('domain_uuid');
-        $language->user_setting_category='domain';
-        $language->user_setting_subcategory='language';
-        $language->user_setting_name='code';
-        $language->user_setting_value=$attributes['language'];
-        $language->user_setting_enabled='t';
-        
-        $time_zone=new UserSetting();
-        $time_zone->domain_uuid = Session::get('domain_uuid');
-        $time_zone->user_setting_category = 'domain';
-        $time_zone->user_setting_subcategory = 'time_zone';
-        $time_zone->user_setting_name = 'name';
-        $time_zone->user_setting_value = $attributes['time_zone'];
-        $time_zone->user_setting_enabled = 't';
-
-        $user->setting()->saveMany([$language,$time_zone]);
-
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User has been saved'
-        ]);
-    
+        return response()->json(['message' => 'User updated successfully'], 200);
     }
 
 
