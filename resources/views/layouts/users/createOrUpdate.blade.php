@@ -95,6 +95,32 @@
                                             </div>
                                         </div> <!-- end row -->
 
+                                        @if (isSuperAdmin())
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="is_on_premise" class="form-label">Use On-Premise PBX</label>
+                                                    <div class="form-check form-switch">
+                                                        <input type="hidden" name="is_on_premise" value="false">
+                                                        <input class="form-check-input" type="checkbox" id="is_on_premise" 
+                                                            name="is_on_premise" value="true"
+                                                            @if (isset($user->user_adv_fields['is_on_premise']) && $user->user_adv_fields['is_on_premise']) checked @endif>
+                                                        <label class="form-check-label" for="is_on_premise">Enable on-premise PBX</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="on_premise_pbx_ip" class="form-label">On-Premise PBX IP</label>
+                                                    <input class="form-control"
+                                                        value="{{ isset($user->user_adv_fields['on_premise_pbx_ip']) ? $user->user_adv_fields['on_premise_pbx_ip'] : '' }}"
+                                                        type="text" placeholder="Enter on-premise PBX IP address" 
+                                                        id="on_premise_pbx_ip" name="on_premise_pbx_ip" />
+                                                    <div class="text-danger error_message on_premise_pbx_ip_err"></div>
+                                                </div>
+                                            </div>
+                                        </div> <!-- end row -->
+                                        @endif
 
                                         <div class="row">
                                             <div class="col-md-6">
