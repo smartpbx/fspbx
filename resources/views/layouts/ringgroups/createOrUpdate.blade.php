@@ -1053,41 +1053,79 @@
                 return false;
             }
 
-            let newRow = `
-        <tr id="row__NEWROWID__"><td class="drag-handler"><i class="mdi mdi-drag"></i> <span>__NEWROWID__</span></td>
-        <td>
-        @include('layouts.partials.destinationSelector', [
-            'type' => 'ring_group_destinations',
-            'id' => '__NEWROWID__',
-            'value' => '',
-            'extensions' => $extensions,
-        ])
-            </td>
-            <td class="colDelay"><select id="destination_delay___NEWROWID__" name="ring_group_destinations[newrow__NEWROWID__][delay]">
-@for ($i = 0; $i < 20; $i++) <option value="{{ $i * 5 }}" @if ($i == 0) selected @endif>
-        {{ $i }} @if ($i > 1) Rings @else Ring @endif - {{ $i * 5 }} Sec</option> @endfor </select></td>
-        <td><select id="destination_timeout___NEWROWID__" name="ring_group_destinations[newrow__NEWROWID__][timeout]">
-        @for ($i = 1; $i < 21; $i++) <option value="{{ $i * 5 }}" @if ($i == 5) selected @endif>
-        {{ $i }} @if ($i > 1) Rings @else Ring @endif - {{ $i * 5 }} Sec</option> @endfor </select></td><td>
-        <input type="hidden" name="ring_group_destinations[newrow__NEWROWID__][prompt]" value="false">
-        <input type="checkbox" id="destination_prompt___NEWROWID__" value="true" name="ring_group_destinations[newrow__NEWROWID__][prompt]" data-option="ring_group_destinations_prompt" class="forward_checkbox" data-switch="primary"/>
-        <label for="destination_prompt___NEWROWID__" data-on-label="On" data-off-label="Off"></label>
-        </td>
-        <td><input type="hidden" name="ring_group_destinations[newrow__NEWROWID__][status]" value="false">
-        <input type="checkbox" id="destination_status___NEWROWID__" value="true" name="ring_group_destinations[newrow__NEWROWID__][status]" data-option="ring_group_destinations_enabled" class="forward_checkbox" data-switch="primary" checked />
-        <label for="destination_status___NEWROWID__" data-on-label="On" data-off-label="Off"></label>
-        </td><td><div class="tooltip-container-actions"><a href="javascript:confirmDeleteDestinationAction('row__NEWROWID__');" class="action-icon">
-        <i class="mdi mdi-delete" data-bs-container=".tooltip-container-actions" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"></i>
-        </a></div></td></tr>`;
-            newRow = newRow.replaceAll('__NEWROWID__', Math.random().toString(16).slice(2))
+            let newRow = $(`
+                <tr id="row__NEWROWID__">
+                    <td class="drag-handler"><i class="mdi mdi-drag"></i> <span>__NEWROWID__</span></td>
+                    <td>
+                        <div class="destination_wrapper">
+                            <div class="input-group">
+                                <select class="form-control" name="ring_group_destinations[newrow__NEWROWID__][type]">
+                                    <option value="internal">Internal</option>
+                                    <option value="external">External</option>
+                                </select>
+                                <input type="text" class="form-control flex-fill" name="ring_group_destinations[newrow__NEWROWID__][target_external]" placeholder="Enter phone number">
+                                <select class="form-control mx-1" name="ring_group_destinations[newrow__NEWROWID__][target_internal]">
+                                    <option value="">Select extension</option>
+                                    @foreach($extensions['Extensions'] as $extension)
+                                        <option value="{{ $extension->extension }}">{{ $extension->extension }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="colDelay">
+                        <select id="destination_delay___NEWROWID__" name="ring_group_destinations[newrow__NEWROWID__][delay]">
+                            @for ($i = 0; $i < 20; $i++)
+                                <option value="{{ $i * 5 }}">{{ $i }} @if ($i > 1) Rings @else Ring @endif - {{ $i * 5 }}Sec</option>
+                            @endfor
+                        </select>
+                    </td>
+                    <td>
+                        <select id="destination_timeout___NEWROWID__" name="ring_group_destinations[newrow__NEWROWID__][timeout]">
+                            @for ($i = 1; $i < 21; $i++)
+                                <option value="{{ $i * 5 }}">{{ $i }} @if ($i > 1) Rings @else Ring @endif - {{ $i * 5 }}Sec</option>
+                            @endfor
+                        </select>
+                    </td>
+                    <td>
+                        <select name="ring_group_destinations[newrow__NEWROWID__][prompt]">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="ring_group_destinations[newrow__NEWROWID__][status]">
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </td>
+                    <td>
+                        <div id="tooltip-container-actions">
+                            <a href="javascript:confirmDeleteDestinationAction('row__NEWROWID__');" class="action-icon">
+                                <i class="mdi mdi-delete" data-bs-container="#tooltip-container-actions" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `);
 
-            newRow = $(newRow)
+            // Replace the placeholder with a unique ID
+            let newRowId = 'newrow' + Date.now();
+            newRow.find('[id*="__NEWROWID__"]').each(function() {
+                $(this).attr('id', $(this).attr('id').replace('__NEWROWID__', newRowId));
+            });
+            newRow.find('[name*="__NEWROWID__"]').each(function() {
+                $(this).attr('name', $(this).attr('name').replace('__NEWROWID__', newRowId));
+            });
+            newRow.find('[href*="__NEWROWID__"]').each(function() {
+                $(this).attr('href', $(this).attr('href').replace('__NEWROWID__', newRowId));
+            });
+            newRow.find('span').text(newCount);
 
-            $('#destination_sortable').append(newRow)
-
-            showHideAddDestination()
-            updateDestinationOrder()
-            applyDestinationSelect2()
+            $('#destination_sortable').append(newRow);
+            showHideAddDestination();
+            updateDestinationOrder();
+            applyDestinationSelect2();
 
             return newRow;
         }
