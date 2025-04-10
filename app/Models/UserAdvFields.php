@@ -27,6 +27,8 @@ class UserAdvFields extends Model
         'user_uuid',
         'first_name',
         'last_name',
+        'is_on_premise',
+        'on_premise_pbx_ip',
     ];
 
     protected $hidden = [

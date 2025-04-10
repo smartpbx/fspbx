@@ -257,6 +257,10 @@ class RingGroupsController extends Controller
 
         $this->generateDialPlanXML($ringGroup);
 
+        // Clear the cache to ensure new ring group appears in dropdowns
+        FusionCache::clear("dialplan:" . $ringGroup->ring_group_context);
+        FusionCache::clear("ring_groups:" . Session::get('domain_uuid'));
+
         return response()->json([
             'status' => 'success',
             'redirect_url' => route('ring-groups.edit', $ringGroup),

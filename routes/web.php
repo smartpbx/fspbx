@@ -89,7 +89,7 @@ Route::post('/mobile-app/get-password/{token}', [AppsCredentialsController::clas
 //     return $markdown->render("emails.app.credentials");
 //    });
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'on_premise_pbx']], function () {
 
     // Extensions
     Route::resource('extensions', ExtensionsController::class);
