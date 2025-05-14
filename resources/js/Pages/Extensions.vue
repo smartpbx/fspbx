@@ -172,7 +172,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router, usePage, route } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import DataTable from '@/Pages/components/general/DataTable.vue';
 import TableColumnHeader from '@/Pages/components/general/TableColumnHeader.vue';
@@ -217,24 +217,26 @@ const selectedItems = ref([]);
 const itemOptions = ref(null);
 const formErrors = ref({});
 const tableData = ref(props.data);
+const filterData = ref({
+    search: props.filters.search || ''
+});
 
 // Watch for props.data changes
 watch(() => props.data, (newData) => {
     tableData.value = newData;
 }, { deep: true });
 
-const search = ref(props.filters.search || '');
-const currentExtension = ref(null);
-const showDeleteModal = ref(false);
-
 // Watch for search changes and reload data
-watch(search, (value) => {
+watch(() => filterData.value.search, (value) => {
     router.get(route('extensions.index'), { search: value }, {
         preserveState: true,
         preserveScroll: true,
         only: ['data']
     });
 });
+
+const currentExtension = ref(null);
+const showDeleteModal = ref(false);
 
 const bulkActions = [
     { name: 'Delete', value: 'delete' },
@@ -252,7 +254,7 @@ const fetchData = async () => {
         const response = await axios.get(route('extensions.index'), {
             params: {
                 page: tableData.value.current_page,
-                search: search.value,
+                search: filterData.value.search,
             },
         });
         tableData.value = response.data;
@@ -269,7 +271,7 @@ const handleSearchButtonClick = () => {
 };
 
 const handleFiltersReset = () => {
-    search.value = '';
+    filterData.value.search = '';
     tableData.value.current_page = 1;
     fetchData();
 };
