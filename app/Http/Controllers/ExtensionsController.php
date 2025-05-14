@@ -62,8 +62,8 @@ class ExtensionsController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->user()->can('extension_view')) {
-            abort(403);
+        if (!userCheckPermission('extension_view')) {
+            return redirect('/');
         }
 
         $domain_uuid = session('domain_uuid');
@@ -93,10 +93,10 @@ class ExtensionsController extends Controller
             'filters' => $request->only(['search']),
             'auth' => [
                 'can' => [
-                    'extensions_create' => $request->user()->can('extension_add'),
-                    'extensions_update' => $request->user()->can('extension_edit'),
-                    'extensions_delete' => $request->user()->can('extension_delete'),
-                    'extensions_import' => $request->user()->can('extension_import'),
+                    'extensions_create' => userCheckPermission('extension_add'),
+                    'extensions_update' => userCheckPermission('extension_edit'),
+                    'extensions_delete' => userCheckPermission('extension_delete'),
+                    'extensions_import' => userCheckPermission('extension_import'),
                 ]
             ],
             'routes' => [
