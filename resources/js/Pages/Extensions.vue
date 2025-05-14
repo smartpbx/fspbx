@@ -79,7 +79,7 @@
             </template>
 
             <template #table-body>
-                <tr v-for="row in data.data" :key="row.extension_uuid">
+                <tr v-for="row in tableData.data" :key="row.extension_uuid">
                     <TableField class="whitespace-nowrap px-4 py-2 text-sm text-gray-500 flex">
                         <div class="flex items-center">
                             <input v-if="row.extension_uuid" v-model="selectedItems" type="checkbox" name="action_box[]"
@@ -172,7 +172,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import DataTable from '@/Pages/components/general/DataTable.vue';
 import TableColumnHeader from '@/Pages/components/general/TableColumnHeader.vue';
@@ -181,9 +181,9 @@ import Paginator from '@/Pages/components/general/Paginator.vue';
 import Loading from '@/Pages/components/general/Loading.vue';
 import StatusBadge from '@/Pages/components/general/StatusBadge.vue';
 import BulkActionButton from '@/Pages/components/general/BulkActionButton.vue';
-import AddEditItemModal from '@/Pages/components/extensions/AddEditItemModal.vue';
-import CreateExtensionForm from '@/Pages/components/extensions/CreateExtensionForm.vue';
-import UpdateExtensionForm from '@/Pages/components/extensions/UpdateExtensionForm.vue';
+import AddEditItemModal from '@/Pages/components/modal/AddEditItemModal.vue';
+import CreateExtensionForm from '@/Components/Forms/CreateExtensionForm.vue';
+import UpdateExtensionForm from '@/Components/Forms/UpdateExtensionForm.vue';
 import BulkUpdateExtensionForm from '@/Components/Forms/BulkUpdateExtensionForm.vue';
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import { Tooltip as EjsTooltip } from '@syncfusion/ej2-vue-popups';
@@ -216,6 +216,12 @@ const selectAll = ref(false);
 const selectedItems = ref([]);
 const itemOptions = ref(null);
 const formErrors = ref({});
+const tableData = ref(props.data);
+
+// Watch for props.data changes
+watch(() => props.data, (newData) => {
+    tableData.value = newData;
+}, { deep: true });
 
 const search = ref(props.filters.search || '');
 const currentExtension = ref(null);
@@ -245,11 +251,11 @@ const fetchData = async () => {
     try {
         const response = await axios.get(route('extensions.index'), {
             params: {
-                page: data.value.current_page,
+                page: tableData.value.current_page,
                 search: search.value,
             },
         });
-        data.value = response.data;
+        tableData.value = response.data;
     } catch (error) {
         console.error('Error fetching extensions:', error);
     } finally {
@@ -258,18 +264,18 @@ const fetchData = async () => {
 };
 
 const handleSearchButtonClick = () => {
-    data.value.current_page = 1;
+    tableData.value.current_page = 1;
     fetchData();
 };
 
 const handleFiltersReset = () => {
     search.value = '';
-    data.value.current_page = 1;
+    tableData.value.current_page = 1;
     fetchData();
 };
 
 const renderRequestedPage = (page) => {
-    data.value.current_page = page;
+    tableData.value.current_page = page;
     fetchData();
 };
 
@@ -372,7 +378,7 @@ const handleBulkActionRequest = async (action) => {
 
 const handleSelectPageItems = () => {
     if (selectPageItems.value) {
-        selectedItems.value = data.value.data.map(item => item.extension_uuid);
+        selectedItems.value = tableData.value.data.map(item => item.extension_uuid);
     } else {
         selectedItems.value = [];
     }
@@ -380,7 +386,7 @@ const handleSelectPageItems = () => {
 
 const handleSelectAll = () => {
     selectAll.value = true;
-    selectedItems.value = data.value.data.map(item => item.extension_uuid);
+    selectedItems.value = tableData.value.data.map(item => item.extension_uuid);
 };
 
 const handleClearSelection = () => {
