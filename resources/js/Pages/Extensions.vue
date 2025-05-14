@@ -172,7 +172,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { router, usePage, route } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import DataTable from '@/Pages/components/general/DataTable.vue';
 import TableColumnHeader from '@/Pages/components/general/TableColumnHeader.vue';
@@ -194,6 +194,10 @@ const props = defineProps({
         required: true
     },
     filters: {
+        type: Object,
+        required: true
+    },
+    routes: {
         type: Object,
         required: true
     },
@@ -250,19 +254,18 @@ onMounted(() => {
 
 const fetchData = async () => {
     loading.value = true;
-    try {
-        const response = await axios.get(route('extensions.index'), {
-            params: {
-                page: tableData.value.current_page,
-                search: filterData.value.search,
-            },
-        });
-        tableData.value = response.data;
-    } catch (error) {
-        console.error('Error fetching extensions:', error);
-    } finally {
-        loading.value = false;
-    }
+    router.visit(props.routes.current_page, {
+        data: {
+            filterData: filterData._rawValue,
+        },
+        preserveScroll: true,
+        preserveState: true,
+        only: ["data"],
+        onSuccess: (page) => {
+            loading.value = false;
+            handleClearSelection();
+        }
+    });
 };
 
 const handleSearchButtonClick = () => {
@@ -283,7 +286,7 @@ const renderRequestedPage = (page) => {
 
 const handleCreateButtonClick = async () => {
     try {
-        const response = await axios.get(route('extensions.create'));
+        const response = await axios.get(props.routes.create);
         itemOptions.value = response.data;
         createModalTrigger.value = true;
     } catch (error) {
@@ -294,7 +297,9 @@ const handleCreateButtonClick = async () => {
 const handleEditRequest = async (uuid) => {
     loadingModal.value = true;
     try {
-        const response = await axios.get(route('extensions.edit', { extension: uuid }));
+        const response = await axios.get(props.routes.edit, {
+            params: { extension: uuid }
+        });
         itemOptions.value = response.data;
         editModalTrigger.value = true;
     } catch (error) {
@@ -308,9 +313,10 @@ const handleCreateRequest = async (formData) => {
     createFormSubmitting.value = true;
     formErrors.value = {};
     try {
-        await axios.post(route('extensions.store'), formData);
+        await axios.post(props.routes.store, formData);
         createModalTrigger.value = false;
-        fetchData();
+        handleSearchButtonClick();
+        handleClearSelection();
     } catch (error) {
         if (error.response?.data?.errors) {
             formErrors.value = error.response.data.errors;
@@ -324,9 +330,10 @@ const handleUpdateRequest = async (formData) => {
     updateFormSubmitting.value = true;
     formErrors.value = {};
     try {
-        await axios.put(route('extensions.update', { extension: itemOptions.value.extension.extension_uuid }), formData);
+        await axios.put(props.routes.update, formData);
         editModalTrigger.value = false;
-        fetchData();
+        handleSearchButtonClick();
+        handleClearSelection();
     } catch (error) {
         if (error.response?.data?.errors) {
             formErrors.value = error.response.data.errors;
@@ -336,16 +343,17 @@ const handleUpdateRequest = async (formData) => {
     }
 };
 
-const handleSingleItemDeleteRequest = async (route) => {
+const handleSingleItemDeleteRequest = async (url) => {
     if (!confirm('Are you sure you want to delete this extension?')) {
         return;
     }
-    try {
-        await axios.delete(route);
-        fetchData();
-    } catch (error) {
-        console.error('Error deleting extension:', error);
-    }
+    router.delete(url, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            handleSearchButtonClick();
+        }
+    });
 };
 
 const handleBulkActionRequest = async (action) => {
@@ -356,22 +364,22 @@ const handleBulkActionRequest = async (action) => {
             return;
         }
         try {
-            await axios.post(route('extensions.bulk-delete'), {
+            await axios.post(props.routes.bulk_delete, {
                 items: selectedItems.value,
             });
             handleClearSelection();
-            fetchData();
+            handleSearchButtonClick();
         } catch (error) {
             console.error('Error bulk deleting extensions:', error);
         }
     } else if (action === 'enable' || action === 'disable') {
         try {
-            await axios.post(route('extensions.bulk-update'), {
+            await axios.post(props.routes.bulk_update, {
                 items: selectedItems.value,
                 enabled: action === 'enable',
             });
             handleClearSelection();
-            fetchData();
+            handleSearchButtonClick();
         } catch (error) {
             console.error('Error bulk updating extensions:', error);
         }

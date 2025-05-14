@@ -62,60 +62,52 @@ class ExtensionsController extends Controller
      */
     public function index(Request $request)
     {
-        // Check permissions
-        if (!userCheckPermission("extension_view")) {
-            return redirect('/');
+        if (!$request->user()->can('extension_view')) {
+            abort(403);
         }
 
-        $searchString = $request->get('search');
-
-        // Get all extensions
-        $extensions = Extensions::where('domain_uuid', Session::get('domain_uuid'))
+        $domain_uuid = session('domain_uuid');
+        $extensions = Extensions::where('domain_uuid', $domain_uuid)
             ->orderBy('extension')
-            ->with('advSettings');
-
-        if ($searchString) {
-            $extensions->where(function ($query) use ($searchString) {
-                $query->where('extension', 'ilike', '%' . str_replace('-', '', $searchString) . '%')
-                    ->orWhere('effective_caller_id_name', 'ilike', '%' . str_replace('-', '', $searchString) . '%')
-                    ->orWhere('directory_first_name', 'ilike', '%' . str_replace('-', '', $searchString) . '%')
-                    ->orWhere('directory_last_name', 'ilike', '%' . str_replace('-', '', $searchString) . '%')
-                    ->orWhere('description', 'ilike', '%' . str_replace('-', '', $searchString) . '%');
-            });
-        }
-
-        $extensions = $extensions->paginate(50)->onEachSide(1);
+            ->paginate(50);
 
         // Transform the data for the frontend
         $extensions->getCollection()->transform(function ($extension) {
             return [
                 'extension_uuid' => $extension->extension_uuid,
                 'extension' => $extension->extension,
-                'name' => $extension->effective_caller_id_name,
-                'type' => $extension->user_context,
+                'number_alias' => $extension->number_alias,
+                'description' => $extension->description,
                 'enabled' => $extension->enabled,
-                'destroy_route' => route('extensions.destroy', $extension->extension_uuid),
+                'created_at' => $extension->created_at,
+                'updated_at' => $extension->updated_at,
             ];
         });
 
-        // If it's an API request, return JSON
         if ($request->wantsJson()) {
             return response()->json($extensions);
         }
 
-        // Otherwise, return Inertia response
         return Inertia::render('Extensions', [
             'data' => $extensions,
-            'filters' => [
-                'search' => $searchString
-            ],
+            'filters' => $request->only(['search']),
             'auth' => [
                 'can' => [
-                    'extensions_create' => userCheckPermission('extension_add'),
-                    'extensions_update' => userCheckPermission('extension_edit'),
-                    'extensions_destroy' => userCheckPermission('extension_delete'),
-                    'extensions_import' => userCheckPermission('extension_add'), // Assuming import uses the same permission as add
+                    'extensions_create' => $request->user()->can('extension_add'),
+                    'extensions_update' => $request->user()->can('extension_edit'),
+                    'extensions_delete' => $request->user()->can('extension_delete'),
+                    'extensions_import' => $request->user()->can('extension_import'),
                 ]
+            ],
+            'routes' => [
+                'current_page' => route('extensions.index'),
+                'create' => route('extensions.create'),
+                'store' => route('extensions.store'),
+                'edit' => route('extensions.edit'),
+                'update' => route('extensions.update'),
+                'bulk_delete' => route('extensions.bulk-delete'),
+                'bulk_update' => route('extensions.bulk-update'),
+                'select_all' => route('extensions.select-all'),
             ]
         ]);
     }
