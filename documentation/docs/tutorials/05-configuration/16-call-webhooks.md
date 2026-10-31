@@ -116,3 +116,50 @@ Requests include these headers:
 - `X-FS-PBX-Event-Type`: the event type.
 
 Reject stale timestamps according to your security policy and compare signatures with a constant-time comparison. Deduplicate requests by the event ID because a retry can deliver the same event more than once. Strict delivery order is not guaranteed.
+
+## SMS/MMS message events
+
+The same per-account configuration can also send SMS and MMS events. They are off by default because they carry message text; select them explicitly under **Events**.
+
+- `message.received`: an SMS or MMS from an external number was stored for the account.
+- `message.sent`: an outbound SMS or MMS was accepted by the messaging provider.
+
+Message events do not need the call webhook listener. They are queued by the messaging pipeline and delivered by the regular queue workers (`webhooks` queue). Extension-to-extension softphone chat is not an SMS and never produces these events.
+
+`data` is the same `message` object returned by `GET /api/v1/domains/{domain_uuid}/messages`:
+
+```json
+{
+  "id": "event-uuid",
+  "type": "message.received",
+  "occurred_at": "2026-10-01T14:03:11.512Z",
+  "data": {
+    "object": "message",
+    "message_uuid": "message-uuid",
+    "domain_uuid": "account-uuid",
+    "direction": "inbound",
+    "type": "mms",
+    "from": "+12025550111",
+    "to": "+12025550100",
+    "extension_uuid": "extension-uuid",
+    "extension": "100",
+    "body": "Photo attached",
+    "media": [
+      {
+        "index": 0,
+        "content_type": "image/jpeg",
+        "filename": "photo.jpg",
+        "size": 48213,
+        "url": "https://pbx.example.com/api/v1/domains/account-uuid/messages/message-uuid/media/0"
+      }
+    ],
+    "status": "received",
+    "provider": "telnyx",
+    "provider_message_id": "provider-reference",
+    "created_at": "2026-10-01T14:03:11Z",
+    "updated_at": "2026-10-01T14:03:11Z"
+  }
+}
+```
+
+Media URLs require the same API Bearer token as the Messages API. Message event IDs are derived from the message and the event type, so a repeated emit for the same message carries the same `id`. Message events are attempted up to five times with exponential backoff (about 10 s, 100 s, 1000 s and 10000 s between attempts); use the Messages API with `since` to reconcile anything missed.

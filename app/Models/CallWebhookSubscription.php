@@ -13,10 +13,25 @@ class CallWebhookSubscription extends Model
     public const EVENT_ANSWERED = 'call.answered';
     public const EVENT_ENDED = 'call.ended';
 
+    public const EVENT_MESSAGE_RECEIVED = 'message.received';
+    public const EVENT_MESSAGE_SENT = 'message.sent';
+
+    /** Call events: the default selection for a new subscription. */
     public const EVENTS = [
         self::EVENT_RINGING,
         self::EVENT_ANSWERED,
         self::EVENT_ENDED,
+    ];
+
+    /** SMS/MMS events: opt-in, since they carry message bodies. */
+    public const MESSAGE_EVENTS = [
+        self::EVENT_MESSAGE_RECEIVED,
+        self::EVENT_MESSAGE_SENT,
+    ];
+
+    public const ALL_EVENTS = [
+        ...self::EVENTS,
+        ...self::MESSAGE_EVENTS,
     ];
 
     protected $table = 'call_webhook_subscriptions';

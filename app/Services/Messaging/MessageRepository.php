@@ -79,6 +79,8 @@ class MessageRepository
             'message_uuid' => $message->message_uuid,
         ]);
 
+        app(MessageWebhookService::class)->received($message);
+
         return $message;
     }
 
@@ -238,6 +240,11 @@ class MessageRepository
         }
 
         $message->save();
+
+        if ($result->success) {
+            app(MessageWebhookService::class)->sent($message);
+        }
+
         messaging_webhook_debug('applyOutboundSendResult called', [
             'message_uuid' => $message->message_uuid,
             'carrier' => $carrier,

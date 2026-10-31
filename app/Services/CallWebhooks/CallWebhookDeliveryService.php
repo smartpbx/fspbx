@@ -8,14 +8,19 @@ use Spatie\WebhookServer\WebhookCall;
 
 class CallWebhookDeliveryService
 {
-    public function dispatch(CallWebhookSubscription $subscription, array $payload): bool
+    public function dispatch(CallWebhookSubscription $subscription, array $payload, ?int $tries = null): bool
     {
         $eventType = (string) ($payload['type'] ?? '');
         if ($eventType !== 'call.test' && ! $subscription->accepts($eventType)) {
             return false;
         }
 
-        $this->call($subscription, $payload)->dispatch();
+        $call = $this->call($subscription, $payload);
+        if ($tries !== null) {
+            $call->maximumTries($tries);
+        }
+
+        $call->dispatch();
 
         return true;
     }

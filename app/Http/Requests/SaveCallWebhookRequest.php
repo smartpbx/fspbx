@@ -26,7 +26,7 @@ class SaveCallWebhookRequest extends FormRequest
             'endpoint_url' => ['required', 'url', 'max:2048'],
             'enabled' => ['required', 'boolean'],
             'events' => ['required', 'array', 'min:1'],
-            'events.*' => ['required', 'string', Rule::in(CallWebhookSubscription::EVENTS)],
+            'events.*' => ['required', 'string', Rule::in(CallWebhookSubscription::ALL_EVENTS)],
         ];
     }
 

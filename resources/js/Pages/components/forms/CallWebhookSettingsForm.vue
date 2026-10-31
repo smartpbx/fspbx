@@ -17,7 +17,7 @@
                 <div class="space-y-6 bg-gray-50 px-4 py-6 text-gray-600 sm:p-6">
                     <FormElements>
                         <StaticElement name="header" tag="h4" content="Call Webhooks"
-                            description="Send real-time inbound call events to your CRM when an extension or queue agent rings, answers, or finishes a call." />
+                            description="Send real-time inbound call events to your CRM when an extension or queue agent rings, answers, or finishes a call, and optionally SMS/MMS sent or received on the domain." />
 
                         <ToggleElement name="enabled" text="Enabled" :true-value="true" :false-value="false" />
 
@@ -27,7 +27,7 @@
                             :rules="['required', 'url']" />
 
                         <CheckboxgroupElement name="events" label="Events" :items="eventOptions"
-                            description="Choose which call lifecycle changes FS PBX sends." />
+                            description="Choose which call lifecycle changes and SMS/MMS events FS PBX sends. SMS/MMS events include message text." />
 
                         <StaticElement v-if="maskedSecret" name="masked_secret" tag="div">
                             <template #default>
@@ -122,6 +122,8 @@ const eventOptions = [
     { value: 'call.ringing', label: 'Ringing' },
     { value: 'call.answered', label: 'Answered' },
     { value: 'call.ended', label: 'Ended' },
+    { value: 'message.received', label: 'SMS/MMS received' },
+    { value: 'message.sent', label: 'SMS/MMS sent' },
 ]
 
 const canSave = computed(() => exists.value
@@ -210,7 +212,7 @@ const deleteConfiguration = async () => {
         exists.value = false
         maskedSecret.value = null
         revealedSecret.value = null
-        form$.value.update({ enabled: true, endpoint_url: '', events: eventOptions.map(item => item.value) })
+        form$.value.update({ enabled: true, endpoint_url: '', events: eventOptions.filter(item => item.value.startsWith('call.')).map(item => item.value) })
         form$.value.clean()
         emit('success', response.data.messages)
     } catch (error) {

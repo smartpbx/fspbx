@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\CdrController;
 use App\Http\Controllers\Api\V1\ClickToDialController;
 use App\Http\Controllers\Api\V1\PhoneControlController;
 use App\Http\Controllers\Api\V1\RecordingController;
+use App\Http\Controllers\Api\V1\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -231,4 +232,16 @@ Route::middleware(['auth:sanctum', 'api.token.auth', 'throttle:api'])->group(fun
         ->middleware('user.authorize:recording_upload');
     Route::delete('/domains/{domain_uuid}/recordings/{recording_uuid}', [RecordingController::class, 'destroy'])
         ->middleware('user.authorize:recording_delete');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Messages: SMS/MMS (domain-scoped)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/domains/{domain_uuid}/messages', [MessageController::class, 'index'])
+        ->middleware('user.authorize:messages_view');
+    Route::get('/domains/{domain_uuid}/messages/{message_uuid}', [MessageController::class, 'show'])
+        ->middleware('user.authorize:messages_view');
+    Route::get('/domains/{domain_uuid}/messages/{message_uuid}/media/{index}', [MessageController::class, 'media'])
+        ->middleware('user.authorize:messages_view');
 });

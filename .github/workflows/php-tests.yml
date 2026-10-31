@@ -1,0 +1,71 @@
+name: PHP tests
+
+on:
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'routes/**'
+      - 'config/**'
+      - 'tests/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml'
+      - '.github/workflows/php-tests.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'app/**'
+      - 'routes/**'
+      - 'config/**'
+      - 'tests/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'phpunit.xml'
+      - '.github/workflows/php-tests.yml'
+
+concurrency:
+  group: php-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: PHPUnit (v1 API + messaging, SQLite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3, bcmath, gd, zip, redis
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts --ignore-platform-reqs
+
+      # public/ holds the FusionPBX core in a real install and is not in this
+      # repo; composer's autoload "files" only need these paths to exist.
+      - name: Prepare app skeleton
+        run: |
+          for f in public/resources/classes/cache.php public/resources/classes/event_socket.php public/resources/tcpdf/tcpdf.php public/resources/fpdi/fpdi.php; do
+            mkdir -p "$(dirname "$f")"; [ -f "$f" ] || echo '<?php' > "$f"
+          done
+          mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/framework/testing storage/logs bootstrap/cache
+          echo "APP_KEY=base64:$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: v1 API feature tests
+        run: vendor/bin/phpunit tests/Feature/Api/V1
+
+      - name: Message webhook tests
+        run: vendor/bin/phpunit tests/Feature/MessageWebhookTest.php
