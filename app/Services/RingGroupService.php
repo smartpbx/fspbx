@@ -88,12 +88,26 @@ class RingGroupService
         return $this->toBool($value, $default) ? 'true' : 'false';
     }
 
-    public function buildUpdateData(array $validated, $domain_name): array
+    /**
+     * @param array|null $existing Stored state for PATCH updates: ['strategy' => string|null, 'members' => array|null]
+     *        (members in the same shape as the API request). When given, the call timeout is only
+     *        recalculated if the request touches members or strategy; otherwise the column is left alone.
+     */
+    public function buildUpdateData(array $validated, $domain_name, ?array $existing = null): array
     {
         $updateData = $validated;
 
         // --- Derived fields ---
-        $updateData['ring_group_call_timeout'] = $this->calculateTimeout($validated);
+        if ($existing === null) {
+            $updateData['ring_group_call_timeout'] = $this->calculateTimeout($validated);
+        } elseif (array_key_exists('members', $validated) || array_key_exists('ring_group_strategy', $validated)) {
+            $basis = $validated;
+            $basis['ring_group_strategy'] = $validated['ring_group_strategy'] ?? ($existing['strategy'] ?? null);
+            if (! array_key_exists('members', $validated)) {
+                $basis['members'] = $existing['members'] ?? [];
+            }
+            $updateData['ring_group_call_timeout'] = $this->calculateTimeout($basis);
+        }
 
         if (array_key_exists('timeout_action', $validated)) {
             $timeout = $this->buildExitDestinationAction($validated, $domain_name);
