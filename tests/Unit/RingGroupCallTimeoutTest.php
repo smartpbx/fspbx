@@ -51,4 +51,23 @@ class RingGroupCallTimeoutTest extends TestCase
 
         $this->assertSame(0, $data['ring_group_call_timeout']);
     }
+
+    public function test_api_member_shape_is_recalculated_for_each_strategy(): void
+    {
+        $members = [
+            ['destination_enabled' => true, 'destination_delay' => 0, 'destination_timeout' => 20],
+            ['destination_enabled' => true, 'destination_delay' => 5, 'destination_timeout' => 30],
+            ['destination_enabled' => false, 'destination_delay' => 0, 'destination_timeout' => 99],
+        ];
+        $expected = ['simultaneous' => 35, 'sequence' => 50, 'rollover' => 30];
+
+        foreach ($expected as $strategy => $seconds) {
+            $data = (new RingGroupService())->buildUpdateData(
+                ['ring_group_strategy' => $strategy, 'members' => $members],
+                'example.com',
+                ['strategy' => 'simultaneous', 'members' => null]
+            );
+            $this->assertSame($seconds, $data['ring_group_call_timeout'], $strategy);
+        }
+    }
 }

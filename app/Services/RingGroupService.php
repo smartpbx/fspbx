@@ -152,6 +152,18 @@ class RingGroupService
 
     private function calculateTimeout(array $validated): int
     {
+        // Accept both the web-UI member shape (enabled/timeout/delay) and the API v1 shape
+        // (destination_enabled/destination_timeout/destination_delay).
+        if (is_array($validated['members'] ?? null)) {
+            $validated['members'] = array_map(fn ($m) => is_array($m) ? $m + [
+                'enabled' => $m['destination_enabled'] ?? null,
+                'timeout' => $m['destination_timeout'] ?? null,
+                'delay' => $m['destination_delay'] ?? null,
+                'destination_enabled' => $m['enabled'] ?? null,
+                'destination_timeout' => $m['timeout'] ?? null,
+            ] : [], $validated['members']);
+        }
+
         if (($validated['ring_group_strategy'] ?? '') === 'rollover') {
             $members = is_array($validated['members'] ?? null) ? $validated['members'] : [];
             $enabledMembers = array_values(array_filter($members, fn ($m) => !empty($m['destination_enabled'])));
