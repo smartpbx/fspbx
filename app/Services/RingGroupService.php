@@ -88,12 +88,26 @@ class RingGroupService
         return $this->toBool($value, $default) ? 'true' : 'false';
     }
 
-    public function buildUpdateData(array $validated, $domain_name): array
+    /**
+     * @param array|null $existing Stored state for PATCH updates: ['strategy' => string|null, 'members' => array|null]
+     *        (members in the same shape as the API request). When given, the call timeout is only
+     *        recalculated if the request touches members or strategy; otherwise the column is left alone.
+     */
+    public function buildUpdateData(array $validated, $domain_name, ?array $existing = null): array
     {
         $updateData = $validated;
 
         // --- Derived fields ---
-        $updateData['ring_group_call_timeout'] = $this->calculateTimeout($validated);
+        if ($existing === null) {
+            $updateData['ring_group_call_timeout'] = $this->calculateTimeout($validated);
+        } elseif (array_key_exists('members', $validated) || array_key_exists('ring_group_strategy', $validated)) {
+            $basis = $validated;
+            $basis['ring_group_strategy'] = $validated['ring_group_strategy'] ?? ($existing['strategy'] ?? null);
+            if (! array_key_exists('members', $validated)) {
+                $basis['members'] = $existing['members'] ?? [];
+            }
+            $updateData['ring_group_call_timeout'] = $this->calculateTimeout($basis);
+        }
 
         if (array_key_exists('timeout_action', $validated)) {
             $timeout = $this->buildExitDestinationAction($validated, $domain_name);
@@ -138,6 +152,18 @@ class RingGroupService
 
     private function calculateTimeout(array $validated): int
     {
+        // Accept both the web-UI member shape (enabled/timeout/delay) and the API v1 shape
+        // (destination_enabled/destination_timeout/destination_delay).
+        if (is_array($validated['members'] ?? null)) {
+            $validated['members'] = array_map(fn ($m) => is_array($m) ? $m + [
+                'enabled' => $m['destination_enabled'] ?? null,
+                'timeout' => $m['destination_timeout'] ?? null,
+                'delay' => $m['destination_delay'] ?? null,
+                'destination_enabled' => $m['enabled'] ?? null,
+                'destination_timeout' => $m['timeout'] ?? null,
+            ] : [], $validated['members']);
+        }
+
         if (($validated['ring_group_strategy'] ?? '') === 'rollover') {
             $members = is_array($validated['members'] ?? null) ? $validated['members'] : [];
             $enabledMembers = array_values(array_filter($members, fn ($m) => !empty($m['destination_enabled'])));
