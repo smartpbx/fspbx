@@ -3,7 +3,8 @@
      Changes vs stock: 10 side keys and 3 pages x 32 function-key slots, every slot written (Fanvil keeps any
      index the cfg does not mention); BLF subtype follows legacy (bc; flow keys always bc); SIPPort from the
      first line (legacy: 36000); TimeZone blank unless fanvil_time_zone is set (legacy); legacy RTP range;
-     SoftKeyExitStyle 1. FlashServerIP still comes from fanvil_provision_url (default -> domain -> device). --}}
+     SoftKeyExitStyle 1. FlashServerIP comes from fanvil_provision_url (default -> domain -> device); when unset it
+     falls back to https://<domain>/app/provision exactly as legacy, so assigning the template never moves a phone. --}}
 {{-- version: 1.1.3-x210.1 --}}
 
 @switch($flavor)
@@ -358,7 +359,7 @@
         <DownloadCommonConf>1</DownloadCommonConf>
         <SaveProvisionInfo>1</SaveProvisionInfo>
         <CheckFailTimes>5</CheckFailTimes>
-        <FlashServerIP>{{ $setting('fanvil_provision_url', $setting('provision_base_url')) }}</FlashServerIP>
+        <FlashServerIP>{{ $setting('fanvil_provision_url', 'https://' . ($domain_name ?? '') . '/app/provision') }}</FlashServerIP>
         <FlashFileName>{{ $setting('fanvil_firmware_config') }}</FlashFileName>
         <FlashProtocol>5</FlashProtocol>
         <FlashMode>1</FlashMode>

@@ -26,7 +26,7 @@ changes_vs_stock:
 provisioning_url:
   tag: sysConf/ap/FlashServerIP
   setting: fanvil_provision_url     # default -> domain -> device chain, same key the legacy x210 file reads
-  fallback: provision_base_url      # config('app.url') + /prov/
+  fallback: https://<domain>/app/provision   # same as legacy; a template alone never moves a phone
 settings_read:                      # name (default if absent)
   new_in_this_template:
     - fanvil_blf_subtype (bc)
@@ -52,6 +52,6 @@ settings_read:                      # name (default if absent)
     - fanvil_softkey_desktopclick/desktopsoftkey/ringingsoftkey/talkingsoftkey
     - fanvil_stun_port (3478), fanvil_stun_server, fanvil_syslog_enable, fanvil_syslog_server (0.0.0.0), fanvil_syslog_server_port (514)
     - fanvil_time_display (0), fanvil_time_zone_name (UTC), fanvil_video_codec (H264), fanvil_wifi_enable
-    - language (en), ntp_server_primary (pool.ntp.org), ntp_server_secondary, voicemail_number, provision_base_url
+    - language (en), ntp_server_primary (pool.ntp.org), ntp_server_secondary, voicemail_number
 template_variables: [flavor, settings, lines, side_keys, main_keys, domain_name]
 secrets: none in the file; line and web/provision passwords are read from variables

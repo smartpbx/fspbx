@@ -17,7 +17,7 @@ keep re-asserting the `/prov/` URL or the phone drifts back. The template render
 `x210/{$mac}.cfg` reads:
 
 - legacy: `{if isset($fanvil_provision_url)}{$fanvil_provision_url}{else}https://{$domain_name}/app/provision{/if}`
-- native template: `{{ $setting('fanvil_provision_url', $setting('provision_base_url')) }}`
+- native template: `{{ $setting('fanvil_provision_url', 'https://' . ($domain_name ?? '') . '/app/provision') }}` (same fallback as legacy; stock used `/prov/`, which would move a phone as soon as a template was assigned)
 
 Native resolves settings default -> domain -> device (`ProvisioningController::getProvisionSettings`, device last wins),
 so a device-level `fanvil_provision_url` decides what that one phone is told. Rendered today (no device override, native
@@ -39,6 +39,9 @@ native : <FlashServerIP>https://provision.smartpbx.io/app/provision/</FlashServe
 - Not provable offline (bench probe P4): that the X210 really adopts a changed `FlashServerIP` on its scheduled pull
   without a reboot. DHCP option 66 (RB5009 hands `.../app/provision`) and Fanvil RPS can pull a factory-reset phone back
   to legacy; `DHCPOption=66` and `PNPEnable=1` are rendered the same as legacy.
+
+Order at cutover: assigning the template alone changes nothing about the URL, the phone keeps being told the legacy URL.
+Only the device-level `fanvil_provision_url` moves it.
 
 ## 3. Keys
 
@@ -108,6 +111,10 @@ Parks appear on `internal` page 1 slots 1-2 on six of them (105181, 105200, 1052
 them entirely). 0c383e7dffa6 carries foreign type codes in its profile (renders `park+*5901@1/automata` and
 `park+*5902@1/16`), a data problem in the profile. Do not cut these over until their profiles are converted to key
 templates and re-rendered clean with this file.
+
+**Guard (cutover rule):** the ten profile-keyed X210s must have their profile converted to a key template at cutover,
+before `device_template_uuid` is set and before any `/prov/` URL is applied (conversion tracked in fspbx#12). Assigning
+this template to a profile phone would otherwise blank its side keys and move or drop its Park keys on the next pull.
 
 ## 6. X4U on stock "XU Series": no custom template needed
 
