@@ -1,0 +1,57 @@
+# patchbay#4352 wave 2, slice x210. Template content: fanvil-x210.tpl
+name: Fanvil X210
+type: custom                      # provisioning_templates.type (load later, in the pilot wave; not loaded yet)
+vendor: fanvil
+models:                           # v_devices.device_template is fanvil/x210 for every one of these
+  - X210
+  - X210-V2
+not_served:
+  - X4U / X4U-V2: stays on stock "XU Series" (see VERIFY.md section 6); its layout differs (6 keys/page, 5 side keys)
+base:
+  name: XU Series
+  vendor_dir: fanvil
+  uuid: 3b9563d1-b4bf-41a7-a4ce-ddf51f20b60c
+  version: 1.1.3
+  source_file: /var/www/fspbx/resources/provisioning/fanvil/XU Series/template.blade.php
+version: 1.1.3-x210.1
+flavors: [mac.cfg]                # same as stock: one @case('mac.cfg')
+changes_vs_stock:
+  - dssSide: all 10 side keys written (blank = Type 0), stock wrote max(5, highest)
+  - internal: FuncKeyPageNum=3, 32 slots per page, every slot written; main key n -> page ceil(n/32), slot ((n-1)%32)+1
+  - BLF subtype: bc (legacy); call-flow keys (value flow<N>) always bc; fanvil_blf_subtype=ba switches other BLFs
+  - SIPPort: first line's sip_port (legacy 36000), falls back to sip_port setting then 5060
+  - TimeZone: blank unless fanvil_time_zone is set (legacy behaviour; stock wrote 0)
+  - RTP: start 16384, quantity 16384, keepalive off (legacy)
+  - SoftKeyExitStyle default 1 (legacy)
+provisioning_url:
+  tag: sysConf/ap/FlashServerIP
+  setting: fanvil_provision_url     # default -> domain -> device chain, same key the legacy x210 file reads
+  fallback: https://<domain>/app/provision   # same as legacy; a template alone never moves a phone
+settings_read:                      # name (default if absent)
+  new_in_this_template:
+    - fanvil_blf_subtype (bc)
+    - fanvil_rtp_start_port (16384)
+    - fanvil_rtp_port_quantity (16384)
+    - fanvil_rtp_keepalive (off)
+  changed_default:
+    - fanvil_time_zone ('' instead of 0)
+    - fanvil_softkey_exit (1 instead of 2)
+  from_stock:
+    - admin_name, admin_password, http_auth_username, http_auth_password
+    - dns_server_primary (8.8.8.8), dns_server_secondary (208.67.222.222)
+    - fanvil_country_toneset (11), fanvil_date_display (6), fanvil_date_separator (0)
+    - fanvil_default_answer_mode (0), fanvil_default_dial_mode (0), fanvil_default_ringtone (Type 2)
+    - fanvil_display_brightness_active (12), fanvil_display_brightness_inactive (4), fanvil_display_inactivity_time (45)
+    - fanvil_dscp_rtp_video (34), fanvil_dscp_rtp_voice (46), fanvil_dscp_sip (46)
+    - fanvil_dst_fixed_type (0), fanvil_dst_minute_offset (60), fanvil_enable_dst, fanvil_location (4)
+    - fanvil_emergency_number (911), fanvil_enable_auto_upgrade, fanvil_enable_diffserv, fanvil_enable_sntp (on)
+    - fanvil_enable_vlan, fanvil_lan_port_vlan (256), fanvil_pc_port_vlan, fanvil_lldp_learn (0), fanvil_lldp_refresh (60), fanvil_lldp_tx_enable
+    - fanvil_firmware_config, fanvil_firmware_upgrade_interval (24), fanvil_firmware_upgrade_server_1/2
+    - fanvil_greeting (FS PBX), fanvil_menu_password (123), fanvil_pickup_num, fanvil_provision_url
+    - fanvil_qos_rtp_video/voice/sip (0), fanvil_realm (domain name), fanvil_ringtone_line<N> (default)
+    - fanvil_softkey_desktopclick/desktopsoftkey/ringingsoftkey/talkingsoftkey
+    - fanvil_stun_port (3478), fanvil_stun_server, fanvil_syslog_enable, fanvil_syslog_server (0.0.0.0), fanvil_syslog_server_port (514)
+    - fanvil_time_display (0), fanvil_time_zone_name (UTC), fanvil_video_codec (H264), fanvil_wifi_enable
+    - language (en), ntp_server_primary (pool.ntp.org), ntp_server_secondary, voicemail_number
+template_variables: [flavor, settings, lines, side_keys, main_keys, domain_name]
+secrets: none in the file; line and web/provision passwords are read from variables
