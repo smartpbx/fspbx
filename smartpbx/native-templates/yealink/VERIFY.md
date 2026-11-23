@@ -1,0 +1,43 @@
+# Yealink native templates (patchbay#4352, slice yealink)
+
+Templates: `t4-smartpbx` (T46U/T48U/T43U/T41S/T46S, and T57W because stock T5 == stock T4), `t44u-smartpbx` (T44U), `t3-smartpbx` (T33G/T31G).
+Cloned from stock T4/T3 v1.0.20 by `.tpl` patch only; nothing was loaded into the DB. Evidence: `~pbx/native-render/render.sh` (legacy y-files + `<mac>.cfg` concatenated, vs `--native --template-file`), compared key by key (compare.sh on the same files gives 550-950 raw lines per device because legacy writes every unused account block and native every unused key slot; the table below is the filtered view, unused account/linekey/expansion slots dropped, true/1 treated equal). Render output held only in `/tmp/p4352-yealink.*` on fspbx01 and deleted.
+
+## Provisioning URL and rollback
+Line rendered (all three templates): `static.auto_provision.server.url = <yealink_provision_url, else provision_base_url>`. With no override, a native render shows `https://provision.smartpbx.io/app/provision/` (the legacy default setting), so assigning the template alone does NOT move the phone.
+- Cutover: set the device setting `yealink_provision_url` = `https://<host>/prov/` and set `device_template_uuid`; the phone adopts the URL on its next pull.
+- Rollback: set the device `yealink_provision_url` back to the legacy URL (template still assigned), wait one pull (the native config then pushes the legacy URL), then clear `device_template_uuid`. The legacy `<mac>.cfg` keeps the URL setting-driven the same way.
+- Evidence: all 17 devices below render the legacy URL line identically in legacy and native (no diff on `static.auto_provision.server.url`). Overriding was not rendered live (no writes allowed); it is the same `$settings` chain the controller loads (default, domain, device).
+
+## Changes versus stock T4/T3
+1. URL from setting (above). 2. `user_name` = user id (legacy); `yealink_user_name_with_domain=1` restores stock `id@server`. 3. `outbound_proxy_enable = 1` whenever a proxy exists (`yealink_outbound_proxy_disable=1` opts out; ports from `outbound_proxy_N_port` like legacy). 4. Remote phonebook: native phonebooks when assigned, otherwise the legacy Users/Groups/Extensions URLs (`/app/provision/?file=directory.xml&contacts=...`, creds embedded exactly as legacy, `features.remote_phonebook.enable` from `yealink_remote_phonebook_enable`, default 0 as legacy) plus `static.directory_setting.url` (favorites). Identical to legacy on T46U. 5. Softkey 1 "Xfer to VM" and Intercom key: Intercom on `programablekey.3` and `programablekey.2.type=0` exactly as legacy `y900000000108.cfg` (T46U); `yealink_intercom_key_slot` (0 disables, 2 = stock), `yealink_xfer_vm_softkey_disable`. 6. Wallpaper from `yealink_*_wallpaper(_filename)` with legacy isset semantics. 7. `called_party_info_display=1`, `auto_blf_list_enable=1`, `blf_list_sequence_type=1`, `dnd.emergency_enable=1`, `blf.enhanced.idle.enable=0`, `predial_autodial=1` (legacy hard-codes 1; stock rendered it empty), `session_timer.enable` cast to int. 8. T44U only: `subscribe_mwi` from setting default 0, `udp_update_enable 3`, `udp_update_time 30`, account `sip_trust_ctrl 1`, `tls_cipher_list`, `notify_reboot_enable 0`, `hold_or_swap 0`, `mail_power_led_flash 1`, `local_directory 1`, `voice.cng/vad` from settings.
+9. **All echoes are raw (`{!! !!}`), not `{{ }}`.** Stock `{{ }}` HTML-escapes `& ' < >`: a tenant's `http_auth_password` containing `&` rendered as `&amp;` natively, so the phone would get a wrong provisioning password (seen on 100171, fixed here). The same applies to SIP passwords and display names with `'` in stock T4/T3/T5/T7/T4W and probably every native template: **separate fix needed in the stock templates**.
+10. Boolean-typed settings with value 0 cast to `false` and render as an empty value in stock (e.g. `yealink_session_timer`, `predial`); only the two above are guarded.
+
+## Devices rendered (legacy vs native-with-our-file), 17 devices, 12 tenants
+T46U: 100171/44dbd27aaa06 (wave 1), 104375/44dbd294d531, 105190/44dbd294d5a5, 105296/44dbd294d713. T44U: 105353/44dbd2f983f1 (wave 1), 023631/44dbd2b1ae6a, 102905/44dbd254d642, 105205/44dbd2b1af1e, 107518/c4fc2287b09c. T33G: 102905/44dbd2724503 (wave 1), 105168/44dbd275aa81 (only two tenants have a T33G). T31G 100419/44dbd25d1458. T41S 105295/001565c6f07b, T43U 105205/44dbd2b1af44, T46S ewee/805e0c0618ca, T48U 102154/44dbd2afb9bd, T57W 107542/c4fc223c0620 (legacy side). Not rendered: T73U/W60B/W70B (below).
+
+## Remaining diffs (all 17 devices; count = devices showing it)
+| Diff | Devices | Class |
+|---|---|---|
+| `linekey.N.type = c` vs legacy 16 (BLF/park, profile rows) | 12 (every profile device) | owned by profiles slice, blocks cutover |
+| Native writes defaults legacy leaves blank: `missed_calllog`, `backlight_time 30`, `ring_type 1`, `screensaver 600`, `transfer.*`, `phone_lock.*`, `dialplan.transfer.mode`, `blf_led_mode`, `missed_call_popup`, `voice_mail_popup`, `rfc2543_hold`, `ringtone.delete`, `sip_server.1.failback_subscribe`, `outbound_proxy_fallback_interval`, `cdp/lldp/vlan/local_time` defaults | 16-17 | harmless (phone defaults) |
+| Legacy-only keys: per-line `acd`, `call_center`, `hoteling`, `dns_cache`, `naptr`, `100rel`, `anonymous_call`, `dialoginfo_callpickup`, `nat.udp_update_time`, `subscribe_mwi_expires`, `sip_server.N.retry_counts`, `area_code.max_len 15`, `blf_list_version`, `save_init_num_to_history`, `call_info_display_method`, `managementserver`, `nat_stun` | 7-16 | harmless (phone defaults); `udp_update_time 30` and `subscribe_mwi_expires 3600` worth a bench look |
+| `static.firmware.url` legacy-only (T46U `t46u-108.85.0.15.rom`, relative) | 16 | intended: no firmware pushed natively (also drops the bogus T44U/T33G URLs) |
+| Native-only `programablekey.3` Intercom and `softkey.1` Xfer to VM on non-T46U models | 12 | needs decision: wanted fleet-wide? Disable per tenant with `yealink_intercom_key_slot=0` / `yealink_xfer_vm_softkey_disable=1` |
+| `phone_setting.backgrounds` legacy `Config:yealink_t41s_wallpaper.png` etc. vs `Config:` natively (models other than T46U, tenants with a legacy default filename) | 5 | needs per-model setting: set `yealink_t46u_wallpaper_filename` (or `_t33g_`) per device/tenant |
+| `subscribe_mwi` legacy 0 (setting) vs native 1 on T41S/T46S/T48U/T43U/T57W | 9 | needs bench probe (T46U legacy hard-codes 1, so t4 keeps 1) |
+| `nat.udp_update_enable` legacy 3 vs native 1 on non-T44U T4x | 7 | needs bench probe |
+| `static.security.user_password`: stock writes it three times (user, admin, var), last wins; legacy value differs | 9 | needs bench probe: phone web UI password after cutover |
+| `account.1.user_name` legacy `id@domain` (server.1.address set) vs bare id | 1 (023631 T44U) | intended: set `yealink_user_name_with_domain=1` on that tenant if it needs the domain form |
+| Remote phonebook `features.remote_phonebook.flash_time 3600` native-only; T31G keys written without `static.` prefix in legacy | 16 / 1 | harmless |
+| Native `sip_server.1.port/transport`, outbound proxy `%NULL%` where line lacks a proxy | 9 | harmless |
+
+## Bench probes still open
+1. `/prov/y000000000000.boot` and y-file requests natively (empty or 404?). 2. Digest auth on `/prov/` with a password containing `&`. 3. Whether a phone that pulled a native config with the legacy URL really returns to legacy (rollback sequence). 4. `user_name` with and without domain registration. 5. Directory/favorites fetched from `/app/provision/` by tenant host after cutover (still served by legacy; retire when upstream retires legacy: native phonebooks are the long-term path, `phonebooks` table is empty today). 6. udp_update_enable, subscribe_mwi, user_password rows above. 7. Linekey type mapping: profiles slice.
+
+## Other models (comment 7113274477)
+- T31G: fits `t3-smartpbx` (rendered); set per-device wallpaper filename.
+- T57W: stock T5 == stock T4 except `yealink_t5_firmware`, so `t4-smartpbx` fits (legacy rendered; native rendered with the T4 file).
+- T73U: needs a T7 clone (stock T7 1.0.22 differs: 78 expansion keys per module, backlight/screensaver defaults, own wallpaper keys, no security block); apply the same patches. Legacy also has a `y900000000108.cfg` (softkey/intercom) to carry over. Not built or rendered.
+- W60B/W70B: base-station templates, different key scheme (887 vs 326 keys); no W60B stock. Out of scope for T4x/T3x; need own slice and bench base.
