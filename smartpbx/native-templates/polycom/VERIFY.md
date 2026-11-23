@@ -25,16 +25,17 @@ Native escapes `&` as `&amp;` which is correct XML (the parser decodes it), and 
 | Legacy parity | `nat.keepalive.interval` 30, `softkey.1.precede` from `polycom_softkey_1_precede` (0), `feature.nonVolatileRingerVolume`, `exchange.server.url`, `feature.callRecording.enabled=0`, `homeScreen.intercom.enable=0`, `dir.local.readonly`, `call.callWaiting.ring`, `diags.pcap.*`, global `sec.srtp.*`, `reg.N.type="private"`, `thirdPartyName`, optional ring types, polling mode/period, video, nat.ip |
 | Dropped stock additions legacy never sent | `use486forReject`, `powerSaving.idleTimeout.officeHours`, `se.stutterOnVoiceMail`, `sec.srtp.simplifiedBestEffort`, `msg.bypassInstantMessage`, hard-coded `up.Pagination.enabled` (now from `polycom_pagination_enabled`), hard-coded TLS cert-validation values (now only when the setting exists), `sec.tagSerialNo`, default analog headset option 2 |
 | DST | `fixedDayEnable="1"` like legacy (see probes) |
-| Keys (key-template devices) | `attendant.resourceList.<key id>` is written exactly as legacy (index = key position, with callAddress, proceedingIsRecipient, type) from `$main_keys`; `lineKey.reassignment.enabled="0"`, no `lineKey.N.category=BLF index=0` rows. Non-attendant key types render `key.N.function.prim` + `subPoint.prim` as legacy |
+| Keys (key-template devices) | `attendant.resourceList.<key id>` is written exactly as legacy (indexed by the key id from `$main_keys`; rows with an empty value are skipped. Verified only on the 9 key-template devices, whose ids are contiguous from 1 with no blank values; a key list with gaps is untested); `lineKey.reassignment.enabled="0"`, no `lineKey.N.category=BLF index=0` rows. Non-attendant key types render `key.N.function.prim` + `subPoint.prim` as legacy |
 
 ## Provisioning-URL rule and rollback
 `device.prov.serverName` is rendered from `polycom_provision_url` (default -> domain -> device chain, the same setting legacy reads), with `.set="1"` on it and on every
-`device.prov.*` (serverType, user, password, tagSerialNo, redun*, abortSWUpgrade*, upgradeServer, syslog). `serverType` comes from `polycom_server_type` (3). Only if the setting
-is unset everywhere does it fall back to the native `/prov/` base. The default today is the legacy URL, so **assigning the template alone changes nothing on the phone**.
+`device.prov.*` (serverType, tagSerialNo, redun*, abortSWUpgrade*, upgradeServer, syslog; user and password only when `http_auth_*` are set, so empty credentials are never pushed). `serverType` comes from `polycom_server_type` (3).
+If the setting is unset or empty, the template falls back to the legacy URL `https://provision.smartpbx.io/app/provision` (the fleet default), **never** to `provision_base_url`, which the controller always sets to `/prov/`.
+The default today is the legacy URL, so **assigning the template alone changes nothing on the phone**, even if the default setting is later blanked.
 
 Rendered, same device (107638 / 482567e6fbd3), from the harness:
 - legacy: `device.prov.serverName="https://provision.smartpbx.io/app/provision"`, `serverType="3"`, `upgradeServer="http://firmware.smartpbx.io/app/polycom/resources/firmware/6.4.7"`
-- native, template as committed (setting unset on the device): `device.prov.serverName.set="1"` `device.prov.serverName="https://provision.smartpbx.io/app/provision"`, `serverType="3"`, same `upgradeServer`
+- native, template as committed (setting not overridden on the device; re-verified after the review fix on 3 devices, plus a run with the setting blanked in memory: still the legacy URL): `device.prov.serverName.set="1"` `device.prov.serverName="https://provision.smartpbx.io/app/provision"`, `serverType="3"`, same `upgradeServer`
 - native, same template with the setting forced to the native URL in memory only: `device.prov.serverName.set="1"` `device.prov.serverName="https://provision.smartpbx.io/prov/"`
 
 Cutover: set the device's `polycom_provision_url` (device setting) to `https://provision.smartpbx.io/prov/` and `device_template_uuid`. The phone writes the new URL (`.set="1"`) on its next pull.
@@ -90,11 +91,11 @@ For devices with no recorded model (blank UA, 111 on 6.x_old), the model file (`
 | `lineKey.reassignment.enabled="0"` native-only (key-template devices) | intended (this is what makes `resourceList.N` map to key N, as legacy does) |
 | Trio: `reg.limit=3`, `.set` on sntp, firmware path from `poly_trio_8800_firmware`; legacy-only volume persist keys and headset keys | harmless for 5.9.6/7.2.8; Trio hardware has no headset keys |
 | 6.x master: legacy `APP_FILE_PATH="sip.ld"`, `DECT_FILE_PATH`, `COREFILE_DIRECTORY`, empty `LOG_FILE_DIRECTORY`; native `LOG_FILE_DIRECTORY="logs"` | needs bench probe: native master has no `APP_FILE_PATH` unless `polycom_vvx_firmware_url` is set, so the phone keeps its firmware. That is the safer behaviour; logs go to `/prov/logs` |
-| DST: both `fixedDayEnable="1"` with 3/9 and 11/2 | same as legacy. This is wrong in most years (fixed calendar day, not a Sunday); March 2027 switches on 9 Mar (a Tuesday). Bench probe: does `fixedDayEnable=0` with date 8 and dayOfWeek 1 give the second Sunday? Not changed without a bench |
+| DST: both `fixedDayEnable="1"` with 3/9 and 11/2 | same as legacy. This is wrong in most years (fixed calendar day, not a Sunday); March 2027 switches on 9 Mar (a Tuesday). Bench probe: does `fixedDayEnable=0` with date 8 and dayOfWeek 1 give the second Sunday? Not changed without a bench; tracked in an issue before the pilot (see PR) |
 
 ## 6.x devices (16): live registration check (read-only)
 Legacy `phone<mac>.cfg` is a PHP fatal for all of them, so they have no working legacy config to match; only the master compares. `fs_cli -x 'show registrations'` (805 rows at the time, 2026-11-23): **none of the 16 is registered**. There are no registrations at all for realm 100180 or `demo`.
-Devices: tenant 100180: 482567b29214 (1001), 482567b2974c (1012), 482567b298c3 (1002), 482567b298d6 (1003), 482567b298eb (1004), 482567b298f1 (1011), 482567b29b21 (1005), 482567b29b25 (1006), 482567b29b3c (1008), 482567b29b35 (1007), 482567b29b4e (1009), 482567b29b5e (1010), 482567d623ed (1013); tenant demo (never provisioned): 112233aabbcc, 112233aabbcd, 112233aabbce (ext 101). Matching was by line user id and domain. Recommendation: disable them (needs the tenant owner's confirmation).
+Devices: tenant 100180: 482567b29214 (1001), 482567b2974c (1012), 482567b298c3 (1002), 482567b298d6 (1003), 482567b298eb (1004), 482567b298f1 (1011), 482567b29b21 (1005), 482567b29b25 (1006), 482567b29b3c (1008), 482567b29b35 (1007), 482567b29b4e (1009), 482567b29b5e (1010), 482567d623ed (1013); tenant demo (never provisioned): 112233aabbcc, 112233aabbcd, 112233aabbce (ext 101). Matching was by line user id and domain. Recommendation: disable them (patchbay#4366). That should land before this template is assigned to any of them: they have no working legacy config to roll back to, and the master drops legacy `APP_FILE_PATH`, `DECT_FILE_PATH`, `COREFILE_DIRECTORY`.
 
 ## Trio 8800: needs its own template?
 Yes, a small one. The VVX template would add model-specific blocks the Trio ignores, but the stock Trio template differs in `reg.limit=3`, an explicit `.set` on sntp, a reduced volume and headset set, its firmware setting (`poly_trio_8800_firmware`) and no wallpaper file. `Trio8800-ewee.tpl` carries the same fixes. Not verified on hardware; 2 devices.
@@ -106,7 +107,7 @@ Adding the generated directory later takes: (1) an fspbx Polycom directory forma
 ## Open bench probes
 1. DST flag/date semantics (`fixedDayEnable`) before March 2027.
 2. Master without `APP_FILE_PATH` on 6.x firmware (keeps firmware; confirm no reboot loop) and `<LOG_FILE_DIRECTORY>` upload to `/prov/logs`.
-3. `&amp;` in a SIP or provisioning password on a real phone (legacy sends a bare `&`, invalid XML; native sends `&amp;`). Test with 482567b8eef7-style password on a spare VVX 250.
+3. **Cutover gate** for any tenant whose line or provisioning password contains `& < > " '` (patchbay#4364): `&amp;` in a SIP or provisioning password on a real phone (legacy sends a bare `&`, invalid XML; native sends `&amp;`). Test with 482567b8eef7-style password on a spare VVX 250.
 4. `reg.N.outboundProxy.*` with `server.1.address` = tenant domain on one portal-proxy line (restores legacy behaviour; pilot on 107638 and 105416).
 5. Trio 8800 template on a real Trio (5.9.6 and 7.2.8).
 6. Intercom auto-answer line (`alertInfo.2`) is copied from legacy; confirm on a phone that an inbound `*8` intercom answers.

@@ -233,21 +233,23 @@
     
     @php
         /* Provisioning URL: same setting the legacy template reads (polycom_provision_url, default -> domain -> device).
-           Unset everywhere: fall back to the native /prov/ base. Rollback = set this setting back to the legacy URL. */
-        $provUrl = ($settings['polycom_provision_url'] ?? '') !== '' ? $settings['polycom_provision_url'] : ($settings['provision_base_url'] ?? '');
+           Unset or empty: fall back to the legacy URL (never provision_base_url, which is always /prov/). Rollback = set this setting back to the legacy URL. */
+        $provUrl = ($settings['polycom_provision_url'] ?? '') !== '' ? $settings['polycom_provision_url'] : 'https://provision.smartpbx.io/app/provision';
         $provType = ($settings['polycom_server_type'] ?? '') !== '' ? $settings['polycom_server_type'] : (str_starts_with(strtolower($provUrl), 'https://') ? '3' : '2');
     @endphp
     <device.prov
-        @if ($provUrl !== '')
         device.prov.serverName.set="1"
         device.prov.serverName="{{ $provUrl }}"
-        @endif
         device.prov.serverType.set="1"
         device.prov.serverType="{{ $provType }}"
+        @if (($settings['http_auth_username'] ?? '') !== '')
         device.prov.user.set="1"
-        device.prov.user="{{ $settings['http_auth_username'] ?? '' }}"
+        device.prov.user="{{ $settings['http_auth_username'] }}"
+        @endif
+        @if (($settings['http_auth_password'] ?? '') !== '')
         device.prov.password.set="1"
-        device.prov.password="{{ $settings['http_auth_password'] ?? '' }}"
+        device.prov.password="{{ $settings['http_auth_password'] }}"
+        @endif
         device.prov.tagSerialNo.set="1"
         device.prov.tagSerialNo="1"
         device.prov.redunAttemptLimit.set="1"

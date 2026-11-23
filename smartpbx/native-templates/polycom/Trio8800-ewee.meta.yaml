@@ -10,9 +10,9 @@ cloned_from:
   uuid: 6254d47e-6be4-428f-b3f9-0a8a974bbaf9
   version: 1.0.0
   db_md5: 4d4b2cf09ae90707d81660b0c8fbb16b   # equals the file on disk (Trio 8800)
-provisioning_url_setting: polycom_provision_url   # default -> domain -> device; falls back to provision_base_url (native /prov/) only if unset everywhere
+provisioning_url_setting: polycom_provision_url   # default -> domain -> device; unset or empty falls back to the legacy URL https://provision.smartpbx.io/app/provision (never which is always /prov/)
 settings_read:
-  provisioning: [polycom_provision_url, polycom_server_type, http_auth_username, http_auth_password, polycom_firmware_url, provision_base_url, polycom_syslog_server, polycom_syslog_transport, polycom_syslog_facility, polycom_syslog_renderlevel, polycom_syslog_prependmac]
+  provisioning: [polycom_provision_url, polycom_server_type, http_auth_username, http_auth_password, polycom_firmware_url, polycom_syslog_server, polycom_syslog_transport, polycom_syslog_facility, polycom_syslog_renderlevel, polycom_syslog_prependmac]
   lines: [line_register_expires, polycom_calls_per_line_key, polycom_feature_key_sync, voicemail_number, polycom_srtp_enable, polycom_srtp_offer, polycom_srtp_require, polycom_ring_type, polycom_ring_type_private]
   dialplan: [polycom_digitmap, polycom_digitmap_timeout]
   softkeys: [polycom_vm_transfer_enable, polycom_intercom_enable, polycom_pickup_enable, polycom_speeddial_enable, polycom_voicemail_softkey_enable, polycom_softkey_1_precede, polycom_softkey_do_not_disturb, polycom_softkey_forward, polycom_softkey_newcall, polycom_softkey_directories, polycom_softkey_recent_calls, polycom_basic_call_management_redundant]
