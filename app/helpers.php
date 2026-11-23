@@ -1898,7 +1898,8 @@ if (!function_exists('buildDestinationAction')) {
             string $vendor,
             array $device_lines,
             string $domain_uuid,
-            array $blfLabelMap = []
+            array $blfLabelMap = [],
+            bool $fanvilSplitAreas = false
         ): array {
             $id = (int)($nk['key_index'] ?? 0);
             if ($id <= 0) return [];
@@ -1906,9 +1907,16 @@ if (!function_exists('buildDestinationAction')) {
             $rawType = strtolower(trim((string)($nk['key_type'] ?? '')));
 
             $keyArea = strtolower(trim((string)($nk['key_area'] ?? 'main')));
+            // Fanvil phones with built-in side screens (e.g. X210) have two key
+            // surfaces: the "Side Keys" area is the main-screen DSS block (`line`),
+            // and the "Function Keys" (main) area is the side-screen block
+            // (`memory`, rendered into <internal> by the template). Only split them
+            // when the key set actually has side rows, so main-only templates keep
+            // rendering to `line` as before.
             $category = match ($keyArea) {
                 'multi_purpose' => 'programmable',
                 'expansion' => 'expansion',
+                'main' => ($fanvilSplitAreas && strtolower(trim($vendor)) === 'fanvil') ? 'memory' : 'line',
                 default => 'line',
             };
 
@@ -2024,13 +2032,23 @@ if (!function_exists('buildDestinationAction')) {
                 $device_lines = [];
             }
 
+            $templateRows = [];
             if ($domain_uuid !== '') {
                 $templateRows = fspbx_get_assigned_device_key_template_rows(
                     $device_uuid,
                     $domain_uuid,
                     $device_lines['1']['user_id'] ?? null
                 );
+            }
 
+            // Decide once across template + per-device rows so both passes agree.
+            $fanvilSplitAreas = strtolower(trim($vendor)) === 'fanvil'
+                && fspbx_key_rows_have_area(array_merge(
+                    is_array($templateRows) ? $templateRows : [],
+                    $new_keys_rows
+                ), 'side');
+
+            if ($domain_uuid !== '') {
                 if (is_array($templateRows) && sizeof($templateRows) !== 0) {
                     fspbx_apply_simple_key_rows_override(
                         $device_keys,
@@ -2038,7 +2056,8 @@ if (!function_exists('buildDestinationAction')) {
                         $device_uuid,
                         $vendor,
                         $device_lines,
-                        $domain_uuid
+                        $domain_uuid,
+                        $fanvilSplitAreas
                     );
 
                     // The old provisioning class applies v_device_keys before it
@@ -2060,8 +2079,25 @@ if (!function_exists('buildDestinationAction')) {
                 $device_uuid,
                 $vendor,
                 $device_lines,
-                $domain_uuid
+                $domain_uuid,
+                $fanvilSplitAreas
             );
+        }
+    }
+
+    if (!function_exists('fspbx_key_rows_have_area')) {
+        /**
+         * True when any simplified key row belongs to the given key_area.
+         */
+        function fspbx_key_rows_have_area(array $rows, string $area): bool
+        {
+            foreach ($rows as $row) {
+                $row = (array) $row;
+                if (strtolower(trim((string)($row['key_area'] ?? 'main'))) === $area) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -2072,7 +2108,8 @@ if (!function_exists('buildDestinationAction')) {
             string $device_uuid,
             string $vendor,
             array $device_lines = [],
-            string $domain_uuid = ''
+            string $domain_uuid = '',
+            bool $fanvilSplitAreas = false
         ): void {
             if ($device_keys === null) {
                 $device_keys = [];
@@ -2130,7 +2167,8 @@ if (!function_exists('buildDestinationAction')) {
                     $vendor,
                     $device_lines,
                     $domain_uuid,
-                    $blfLabelMap
+                    $blfLabelMap,
+                    $fanvilSplitAreas
                 );
 
                 if (empty($row)) continue;
