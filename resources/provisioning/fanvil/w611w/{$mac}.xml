@@ -1392,7 +1392,7 @@
         <MWIPopup>1</MWIPopup>
         <DeviceConnectPopup>1</DeviceConnectPopup>
         <SMSPopup>1</SMSPopup>
-        <OtherPopup>1</OtherPopup>
+        <OtherPopup>{if isset($fanvil_other_popup)}{$fanvil_other_popup}{else}0{/if}</OtherPopup>
         <EnablePortMirror>0</EnablePortMirror>
         <EnableDisplayToInfo>0</EnableDisplayToInfo>
         <AutoCloseLed>0</AutoCloseLed>

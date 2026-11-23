@@ -35,6 +35,7 @@ settings_read:
   - fanvil_lldp_learn
   - fanvil_lldp_refresh
   - fanvil_lldp_tx_enable
+  - fanvil_other_popup
   - fanvil_location
   - fanvil_pc_port_vlan
   - fanvil_provision_url

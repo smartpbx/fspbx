@@ -394,6 +394,10 @@
         <LLDPRefreshTime>{{ $setting('fanvil_lldp_refresh', 60) }}</LLDPRefreshTime>
         <LLDPLearnPolicy>{{ $setting('fanvil_lldp_learn', 0) }}</LLDPLearnPolicy>
     </qos>
+    {{-- phone.display.OtherPopup. Fanvil has no VLAN-only popup key; on X4U-V2 2.12.20 this is the idle-screen "Vlan Id" dialog (patchbay#4402). --}}
+    <background>
+        <OtherPopup>{{ $setting('fanvil_other_popup', 0) }}</OtherPopup>
+    </background>
 </sysConf>
 @break
 

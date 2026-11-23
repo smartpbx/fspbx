@@ -2022,6 +2022,10 @@
         <SMSTriggerRing>NONE</SMSTriggerRing>
         <DsskeyTriggerRing>NONE</DsskeyTriggerRing>
     </IO>
+    {{-- phone.display.OtherPopup. Fanvil has no VLAN-only popup key; on X4U-V2 2.12.20 this is the idle-screen "Vlan Id" dialog (patchbay#4402). --}}
+    <background>
+        <OtherPopup>@if(isset($settings['fanvil_other_popup'])){{ ($settings['fanvil_other_popup'] ?? '') }}@else()0{{ '' }}@endif()</OtherPopup>
+    </background>
 </sysConf>
 @break
 

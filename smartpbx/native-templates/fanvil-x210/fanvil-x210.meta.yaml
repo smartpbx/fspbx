@@ -46,6 +46,7 @@ settings_read:                      # name (default if absent)
     - fanvil_dst_fixed_type (0), fanvil_dst_minute_offset (60), fanvil_enable_dst, fanvil_location (4)
     - fanvil_emergency_number (911), fanvil_enable_auto_upgrade, fanvil_enable_diffserv, fanvil_enable_sntp (on)
     - fanvil_enable_vlan, fanvil_lan_port_vlan (256), fanvil_pc_port_vlan, fanvil_lldp_learn (0), fanvil_lldp_refresh (60), fanvil_lldp_tx_enable
+    - fanvil_other_popup (0)
     - fanvil_firmware_config, fanvil_firmware_upgrade_interval (24), fanvil_firmware_upgrade_server_1/2
     - fanvil_greeting (FS PBX), fanvil_menu_password (123), fanvil_pickup_num, fanvil_provision_url
     - fanvil_qos_rtp_video/voice/sip (0), fanvil_realm (domain name), fanvil_ringtone_line<N> (default)
