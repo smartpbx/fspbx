@@ -414,8 +414,9 @@ static.openvpn.url = {!! $settings['yealink_openvpn_url'] ?? '' !!}
 ################################################################
 ##                      Autop URL                             ##
 ################################################################
-{{-- Rollback depends on this: URL comes from the same setting legacy uses (default -> domain -> device), never hard-coded. --}}
-static.auto_provision.server.url = {!! $settings['yealink_provision_url'] ?? $settings['provision_base_url'] ?? '' !!}
+{{-- Rollback depends on this: URL comes from the same setting legacy uses (default -> domain -> device). Unset or empty falls back to the legacy /app/provision URL, never provision_base_url (/prov/). --}}
+@php $autopUrl = (string) ($settings['yealink_provision_url'] ?? ''); if ($autopUrl === '') { $autopUrl = 'https://' . ($domain_name ?? '') . '/app/provision'; } @endphp
+static.auto_provision.server.url = {!! $autopUrl !!}
 static.auto_provision.server.username = {!! $settings['http_auth_username'] ?? '' !!}
 static.auto_provision.server.password = {!! $settings['http_auth_password'] ?? '' !!}
 
@@ -632,7 +633,7 @@ programablekey.{!! $icSlot !!}.label = Intercom
 ################################################################
 @php
   $pbCreds = (!empty($settings['http_auth_username']) && !empty($settings['http_auth_password']))
-      ? $settings['http_auth_username'] . ':' . $settings['http_auth_password'] . '@'
+      ? rawurlencode((string) $settings['http_auth_username']) . ':' . rawurlencode((string) $settings['http_auth_password']) . '@'
       : '';
   $pbLegacyBase = 'https://' . $pbCreds . ($domain_name ?? '') . '/app/provision/?file=directory.xml&contacts=';
   $pbFavUrl = 'https://' . $pbCreds . ($domain_name ?? '') . '/app/provision/?file=favorite_setting.xml';
