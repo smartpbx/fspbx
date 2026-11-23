@@ -18,7 +18,7 @@ if [ -z "$ua" ]; then case "$vendor" in polycom) ua="PolycomVVX-VVX_250-UA/6.4.7
 get() { q "select coalesce((select domain_setting_value from v_domain_settings where domain_uuid='$duuid' and domain_setting_category='provision' and domain_setting_subcategory='$1' and domain_setting_enabled='true' limit 1),(select default_setting_value from v_default_settings where default_setting_category='provision' and default_setting_subcategory='$1' and default_setting_enabled='true' limit 1),'')"; }
 U=$(get http_auth_username); PW=$(get http_auth_password)
 before=$(q "select device_provisioned_date||'|'||device_provisioned_agent from v_devices where device_uuid='$devuuid'")
-port=$((20000 + RANDOM % 20000)); tmp=$(mktemp -d /tmp/p4352-http.XXXXXX); chmod 755 "$tmp"
+port=$((20000 + RANDOM % 20000)); tmp=$(mktemp -d /tmp/p4352-http.XXXXXX); chmod 700 "$tmp"
 sudo -n -u www-data env PGOPTIONS="$PGOPTIONS" php -d display_errors=0 -d log_errors=1 -d error_log=/dev/stderr -S 127.0.0.1:$port -t /var/www/fspbx/public "$HERE/http_router.php" >"$tmp/srv.log" 2>&1 &
 srv=$!
 trap 'sudo -n pkill -f "php.*-S 127.0.0.1:$port" 2>/dev/null; rm -rf "$tmp"' EXIT

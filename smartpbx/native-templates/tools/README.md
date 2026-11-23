@@ -31,3 +31,24 @@ $R/http_proof.sh --domain <d> --mac <m> [--file <tail>]      # byte-identity pro
   path, `name[index]` for `index=""` elements (Fanvil `Fkey[1]`), Polycom dotted attributes by their own name
   (`reg.1.address`), Grandstream `P123`, native `<item name="x">` as `x`. Legacy Grandstream P-values and the native
   `<item name>` form only line up with `--map=FILE` (lines `P271 account.1.enable`). Malformed legacy XML (bare `&`) falls back to a tolerant scan with a warning.
+
+## Safety notes (review fixes, fspbx#8)
+- **Masking (compare.sh) fails closed.** A row's value is `<redacted>` if (a) the key name matches the secret pattern
+  (pass, pswd, pwd, pw, pin, authcode, secret, psk, token, digest, ... covers Fanvil `RegisterPswd`/`ProxyPswd`/`AdminPW`/`UserPIN`,
+  Algo `sip.pwd`, Polycom `*.password`, Grandstream password P-values and any leaf whose preceding comment says password) **or** (b)
+  the value equals or contains any real secret in the fleet (SIP/extension/device passwords and provision password/secret/PIN
+  settings, read live by `known_secrets.py`), whatever the key is called. If the secret list cannot be read, compare.sh refuses
+  (`--no-db-secrets` only for files that are not device configs). `test_mask.sh` checks the key patterns with synthetic values;
+  `secret_proof.py <domain> <mac> [native args]` proves a real device's compare output holds none of its secrets (counts only).
+  Still: treat render output as secret, and look at a compare file before pasting it into a comment.
+- **Native render is the body only.** `render_native.php` does not run `DigestProvisionAuth` (device lookup by path, realm
+  `Prov-<hash>`, `http_auth_type`/`userAgentForcesBasic`, CIDR check), nginx `/prov/` routing or ETag/304. A clean native render does
+  not prove the phone can authenticate on `/prov/`; that needs one real hit on an `ewee` device before the first pilot, which stamps
+  `device_provisioned_*` and needs approval.
+- **Read-only.** Session default via `PGOPTIONS`; native additionally renders inside an explicit `SET TRANSACTION READ ONLY` transaction
+  (verified before and after, then rolled back); legacy proves before running that its connection is read-only and rejects a write
+  (`render.sh` refuses to release output otherwise, exit 11). A dedicated read-only DB role would be stronger but needs a prod DB change.
+- Temp files live in a `mktemp -d` 700 directory (files 600) removed by a trap on EXIT/INT/TERM; a draft `--template-file` is passed on
+  stdin, so no copy exists. Fanvil without `--ua` takes its UA from the device template/model (X210, X4U, V67, W710D, else X303) and
+  says so on stderr. `check_rewrites.sh` fails when the live nginx provisioning rewrites drift from `nginx-rewrites.snapshot`.
+- `audit_leaks.py <dir>` searches a corpus (git patches, issue/PR comments) for real secret values and prints only locations/labels.

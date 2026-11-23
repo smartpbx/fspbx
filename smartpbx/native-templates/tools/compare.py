@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Format-aware normalized diff of two provisioning configs (patchbay#4352 harness).
 
-usage: compare.py A B [--format=xml|kv] [--ignore-empty] [--include-same] [--no-mask] [--map=FILE]
+usage: compare.py A B [--format=xml|kv] [--ignore-empty] [--include-same] [--no-mask] [--no-db-secrets] [--map=FILE]
 
 Flattens each file to key -> value and prints one line per differing key:   key | a | b
   * XML (Fanvil sysConf, Polycom attribute XML, Grandstream P-values, Cisco/Snom/Htek XML):
@@ -12,19 +12,44 @@ Flattens each file to key -> value and prints one line per differing key:   key 
       A leaf whose preceding XML comment mentions a password/secret is masked too (Grandstream "Config HTTP/HTTPS Password").
   * key/value text (Yealink, Algo, generic): `key = value` or `key: value`, [section] prefixes, #/; comments skipped.
 Missing side prints <absent>; an empty value prints <empty> (with --ignore-empty, empty == absent).
-Secret keys (password/secret/psk/token/digest..., Grandstream password P-values) are masked as <redacted>; a masked key
-is listed only when its real values differ. Extra secret key patterns: env P4352_SECRET_RE. Summary goes to stderr.
+Masking (fails closed): (1) key names matching SECRET_RE (pass/pswd/pwd/pw/pin/authcode/secret/psk/token/digest...), Grandstream
+password P-values and leaves whose preceding comment says password; (2) ANY value equal to or containing a real fleet secret
+(SIP/extension/device passwords, provision password/secret/PIN settings, read from the DB via known_secrets.py), whatever the
+key is called. Masked values print as <redacted>; a masked key is listed only when its real values differ. Extra secret key patterns: env P4352_SECRET_RE. Summary goes to stderr.
 Exit 0 always when the comparison ran (differences are the output); 2 on usage/parse errors.
 """
-import os, re, sys
+import html, os, re, sys
 import xml.etree.ElementTree as ET
 
 GS_SECRET_P = {'P2', 'P3', 'P34', 'P196', 'P406', 'P506', 'P606', 'P706', 'P806', 'P1406', 'P1506', 'P1606', 'P1706', 'P1806', 'P1906', 'P2006', 'P2106', 'P2206', 'P2306', 'P2406', 'P2506', 'P2606', 'P2706', 'P2806', 'P2906', 'P3006', 'P3106', 'P3206', 'P3306', 'P3406', 'P3506', 'P3606'}
-SECRET_RE = re.compile(os.environ.get('P4352_SECRET_RE') or r'pass(word|wd)?|pwd|secret|psk|token|digest|credential|auth_?key|private_?key|passphrase', re.I)
+# Key-name mask (belt). Covers Fanvil RegisterPswd/ProxyPswd/AdminPW/UserPIN/AuthCode, Algo sip.pwd, Polycom *.password,
+# Yealink *password, Grandstream comment text ("... Password"), plus auth/credential/key-material names. The value mask (below) is
+# the value mask: any value equal to, or containing, a real secret of the fleet is masked whatever its key is called.
+SECRET_RE = re.compile(os.environ.get('P4352_SECRET_RE') or
+    r'pass|pswd|pwd|(^|[^a-z])pw($|[^a-z])|pw$|(^|[^a-z])pin($|[^a-z])|pin$|authcode|auth_?code|auth_?pass|secret|psk|token|digest|credential|'
+    r'passphrase|private_?key|auth_?key|shared_?key|(^|[/._-])key_?string|api_?key|community|licen[cs]e_?key|hash', re.I)
+KNOWN = {'exact': set(), 'subs': []}   # filled by load_known(); exact for 4-7 chars, substring for >=8
 
 
-def is_secret(key):
-    return key in GS_SECRET_P or key in SECRET_KEYS or bool(SECRET_RE.search(key))
+def load_known():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import known_secrets
+    vals = {v for _, v in known_secrets.load() if len(v) >= 4}
+    KNOWN['exact'] = {v for v in vals if len(v) < 8}
+    KNOWN['subs'] = sorted((v for v in vals if len(v) >= 8), key=len, reverse=True)
+    sys.stderr.write(f"compare: value mask loaded {len(vals)} known secrets\n")
+
+
+def value_is_secret(v):
+    if len(v) < 4:
+        return False
+    if v in KNOWN['exact']:
+        return True
+    return any(x in v or x.replace('&', '&amp;') in v for x in KNOWN['subs'])
+
+
+def is_secret(key, value=''):
+    return key in GS_SECRET_P or key in SECRET_KEYS or bool(SECRET_RE.search(key)) or value_is_secret(value)
 
 
 def local(tag):
@@ -126,9 +151,9 @@ def load(path, fmt):
         sys.stderr.write(f'compare.py: warning: {path}: not well-formed XML ({e}); using tolerant leaf scan\n')
         out, seen = {}, {}
         for m in re.finditer(r'((?:<!--.*?-->\s*)*)<([A-Za-z_][\w.:-]*)([^<>]*)>([^<]*)</\2>', data, re.S):
-            cm, tag, attrs, val = m.group(1), m.group(2), m.group(3), m.group(4).strip()
+            cm, tag, attrs, val = m.group(1), m.group(2), m.group(3), html.unescape(m.group(4).strip())
             for am in re.finditer(r'([\w.:-]+)="([^"]*)"', attrs):
-                out[am.group(1) if '.' in am.group(1) else f'{tag}@{am.group(1)}'] = am.group(2)
+                out[am.group(1) if '.' in am.group(1) else f'{tag}@{am.group(1)}'] = html.unescape(am.group(2))
             if tag == 'item' and 'name=' in attrs:
                 nm = re.search(r'name="([^"]*)"', attrs).group(1)
                 out[nm] = val
@@ -151,10 +176,16 @@ def main(argv):
     for a in flags:
         if a.startswith('--format='):
             fmt = a.split('=', 1)[1]
-    if len(args) != 2 or any(a not in ('--ignore-empty', '--include-same', '--no-mask') and not a.startswith(('--format=', '--map=')) for a in flags):
+    if len(args) != 2 or any(a not in ('--ignore-empty', '--include-same', '--no-mask', '--no-db-secrets') and not a.startswith(('--format=', '--map=')) for a in flags):
         sys.stderr.write(__doc__)
         return 2
     ignore_empty, include_same, mask = '--ignore-empty' in flags, '--include-same' in flags, '--no-mask' not in flags
+    if mask and '--no-db-secrets' not in flags:
+        try:
+            load_known()
+        except Exception as e:   # fail closed: without the value mask we could print a real password
+            sys.stderr.write(f'compare.py: cannot load known secrets ({e}); refusing. Use --no-db-secrets only for non-device files.\n')
+            return 2
     a, fa = load(args[0], fmt)
     b, fb = load(args[1], fmt)
     for fl in flags:
@@ -187,7 +218,7 @@ def main(argv):
         def show(present, v):
             if not present:
                 return '<absent>'
-            if mask and is_secret(k):
+            if mask and is_secret(k, v):
                 return '<redacted>' if v != '' else '<empty>'
             return '<empty>' if v == '' else v.replace('\n', '\\n')
         print(f'{k} | {show(ia, va)} | {show(ib, vb)}')

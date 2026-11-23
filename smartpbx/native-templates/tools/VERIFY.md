@@ -33,3 +33,22 @@ step, and it would stamp that device: not done without approval.
 ## Known limits / open items
 - Grandstream P-value to item-name map does not exist yet; the Grandstream template worker should supply one for `--map`.
 - Algo `algom<mac>.conf` and Cisco files 404 on legacy for the sampled devices; the owners should pick a device that has a legacy file.
+
+## 4. Review fixes (fspbx#8 review)
+- **Masking proof, one device per vendor** (`secret_proof.py`, device's own line/device/extension passwords plus its tenant's and the default password settings; compare run default, `--include-same`, `--ignore-empty`; control run with `--no-mask` must see the secrets):
+
+| Vendor / device | Secrets checked | Present in render (control hits) | Leaks in compare output |
+|---|---|---|---|
+| Fanvil X303 105229 / 0c383e696bfe (XU Series) | 24 | 2 (2) | 0 |
+| Fanvil X210 100138 / 0c383e7dff3e (XU Series) | 65 | 2 (2) | 0 |
+| Polycom 100202 / 482567b275ec (VVX) | 37 | 2 (2) | 0 |
+| Yealink T46U 100171 / 44dbd27aaa06 (T4) | 50 | 3 (3) | 0 |
+| Grandstream 100203 / 000b82e61499 (resolved) | 26 | 3 (2) | 0 |
+| Algo 105284 / 0022ee19e243 (native vs itself) | 32 | 2 (2) | 0 |
+| Yealink T34W 107585 / c4fc2266bb25 (native vs itself) | 15 | 2 (2) | 0 |
+| Grandstream HT 100250 / ec74d72e92f2 (HT8xx stock) | 28 | 2 (2) | 0 |
+
+  `test_mask.sh`: 19 synthetic key names (RegisterPswd, ProxyPswd, AdminPW, UserPIN, AuthCode, P2, P34, sip.pwd, ...) all `<redacted>`, harmless key stays visible.
+- Render temp files: 700 dir, 600 files, trap cleanup; draft template via stdin. Read-only: native explicit READ ONLY transaction, legacy connection proven read-only and write-rejected before the page runs (`legacy: db transaction_read_only=on write_rejected=yes`).
+- Native skips `DigestProvisionAuth`: documented in README and `render.sh --help`. No native auth proof yet (needs approval, stamps `device_provisioned_*`).
+- Secret audit (read-only, 2026-11-23): PR branches, PR bodies/reviews/comments of fspbx#8-#13, and patchbay#4352 / #4364 bodies and comments, searched against 1245 real secret values of 6+ characters: 0 leaks; a planted control value was found. Short (<6 char) values are not searched.

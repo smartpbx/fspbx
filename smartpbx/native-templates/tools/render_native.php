@@ -21,6 +21,13 @@ $ro = DB::selectOne('show transaction_read_only')->transaction_read_only ?? '?';
 fwrite(STDERR, "native: db transaction_read_only=$ro\n");
 if ($ro !== 'on') { fwrite(STDERR, "REFUSING: DB session is not read-only (set PGOPTIONS)\n"); exit(10); }
 
+// Belt and braces beyond the session default: do the whole render inside an explicit READ ONLY transaction and verify it.
+DB::beginTransaction();
+DB::statement('SET TRANSACTION READ ONLY');
+$txro = DB::selectOne('show transaction_read_only')->transaction_read_only ?? '?';
+fwrite(STDERR, "native: explicit transaction READ ONLY, transaction_read_only=$txro\n");
+if ($txro !== 'on') { DB::rollBack(); fwrite(STDERR, "REFUSING: transaction is not read-only\n"); exit(10); }
+
 $device = Devices::where('domain_uuid', $domainUuid)->whereRaw('lower(device_address) = ?', [strtolower($mac)])->first();
 if (!$device) { fwrite(STDERR, "native: device not found\n"); exit(4); }
 
@@ -52,4 +59,7 @@ $request = Request::create('/prov/' . ltrim($file, '/'), 'GET', [], [], [], ['HT
 [$id, $ext] = $call('extractIdAndExt', $request, $file);
 $rendered = $call('renderProvisioningTemplate', $request, $device, $tpl, $id, $ext);
 fwrite(STDERR, "native: flavor={$rendered['flavor']} mime={$rendered['mime']} bytes=" . strlen($rendered['body']) . "\n");
+$still = DB::selectOne('show transaction_read_only')->transaction_read_only ?? '?';
+DB::rollBack();   // nothing to commit, ever
+if ($still !== 'on') { fwrite(STDERR, "native: transaction left read-only mode during render!\n"); exit(12); }
 echo $rendered['body'];
