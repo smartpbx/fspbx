@@ -1,0 +1,23 @@
+name: VVX-ewee
+vendor: polycom
+engine: blade (native /prov/ ProvisioningController)
+flavors: [mac.cfg, phonemac.cfg, model-mac.cfg]
+serves_models: [VVX 150, VVX 250, VVX 311, VVX 350, VVX 411, VVX 450, other VVX 3xx/4xx/5xx/6xx on UC 6.x and the 16 polycom/6.x devices]
+legacy_replaces: [polycom/6.x_old, polycom/6.x]
+cloned_from:
+  vendor: polycom
+  name: VVX
+  uuid: b4a20367-d4e0-41f5-92cd-78e79decabad
+  version: 1.0.9
+  db_md5: 632f5f8ebf91781e877036870de8c9de   # equals the file on disk at /var/www/fspbx/resources/provisioning/polycom/VVX
+provisioning_url_setting: polycom_provision_url   # default -> domain -> device; falls back to provision_base_url (native /prov/) only if unset everywhere
+settings_read:
+  provisioning: [polycom_provision_url, polycom_server_type, http_auth_username, http_auth_password, polycom_firmware_url, polycom_vvx_firmware_url, provision_base_url, polycom_syslog_server, polycom_syslog_transport, polycom_syslog_facility, polycom_syslog_renderlevel, polycom_syslog_prependmac]
+  lines: [line_register_expires, polycom_calls_per_line_key, polycom_feature_key_sync, voicemail_number, polycom_srtp_enable, polycom_srtp_offer, polycom_srtp_require, polycom_ring_type, polycom_ring_type_private]
+  dialplan: [polycom_digitmap, polycom_digitmap_timeout]
+  softkeys: [polycom_vm_transfer_enable, polycom_intercom_enable, polycom_pickup_enable, polycom_speeddial_enable, polycom_voicemail_softkey_enable, polycom_softkey_1_precede, polycom_softkey_do_not_disturb, polycom_softkey_forward, polycom_softkey_newcall, polycom_softkey_directories, polycom_softkey_recent_calls, polycom_basic_call_management_redundant]
+  time: [polycom_gmt_offset, ntp_server_primary, daylight_savings_enabled, daylight_savings_start_month, daylight_savings_start_day, daylight_savings_start_time, daylight_savings_stop_month, daylight_savings_stop_day, daylight_savings_stop_time]
+  device: [admin_password, polycom_keep_alive, polycom_analog_headset_option, polycom_headset_mode, polycom_one_touch_voicemail, polycom_offhook_line_view_enabled, polycom_power_saving_enable, polycom_provision_polling_enabled, polycom_provision_polling_time, polycom_provision_polling_mode, polycom_provision_polling_period, polycom_provision_polling_timerandomend, polycom_contact_list_readonly, polycom_call_waiting, polycom_default_transfer_method, polycom_request_validation_method, polycom_request_validation_request, polycom_diversion_header, polycom_page_enable, polycom_log_upload_enabled, polycom_bluetooth_radio_on, polycom_cert_validation, polycom_provision_cert_validate, polycom_platform_profile_cipher_suite, polycom_custom_ca_cert1, polycom_custom_ca_cert2, polycom_nat_ip, polycom_video_enable, polycom_video_audio_call_mode, polycom_video_audio_toggle, polycom_pagination_enabled, polycom_display_language, polycom_dns_server, polycom_dns_alt_server, polycom_boot_server_option, polycom_lldp_enabled, polycom_cdp_enabled, polycom_dhcp_vlan_discovery, polycom_homescreen_*, polycom_remotecallerid_*, polycom_spontaneouscallappearances_*]
+  wallpapers: [polycom_vvx_480x272_wallpaper, polycom_vvx_320x240_wallpaper]
+template_variables: [lines, settings, domain_name, main_keys, polycom_line_key_counts]
+secrets: referenced only as variables (line password, http_auth_password, admin_password); never literal
