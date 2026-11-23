@@ -5,7 +5,7 @@ models: [T44U (adds T44U legacy extras)]
 cloned_from: {name: T4, uuid: aa836505-2c54-4d8c-8925-8029f89f84eb, version: 1.0.20}
 version: 1.0.20-smartpbx.1
 settings_read:
-  rollback_url: [yealink_provision_url, provision_base_url (fallback), http_auth_username, http_auth_password]
+  rollback_url: [yealink_provision_url (unset or empty falls back to literal https://provision.smartpbx.io/app/provision/), http_auth_username, http_auth_password]
   new_optional: [yealink_user_name_with_domain, yealink_outbound_proxy_disable, outbound_proxy_1_port, outbound_proxy_2_port, yealink_xfer_vm_softkey_disable, yealink_intercom_key_slot, yealink_predial_autodial_value, yealink_called_party_info_display, yealink_auto_blf_list_enable, yealink_blf_list_sequence_type, yealink_dnd_emergency_enable, yealink_blf_enhanced_idle_enable, yealink_directory_setting_url]
   phonebook: [yealink_remote_phonebook_enable, yealink_remote_phonebook_N_name, yealink_remote_phonebook_N_url, native phonebooks via device_phonebook]
   wallpaper: [yealink_t44u_wallpaper, yealink_t44u_wallpaper_filename (none by default, legacy T44U has none)]
