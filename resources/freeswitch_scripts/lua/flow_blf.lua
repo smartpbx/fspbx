@@ -114,19 +114,21 @@ local function publish_one_presence(event_type, user, domain, enabled)
     ev:addHeader("Caller-Caller-ID-Number", user)
     ev:addHeader("Caller-Caller-ID-Name", user)
     ev:addHeader("Caller-Destination-Number", user)
-    ev:addHeader("channel-state", "CS_EXECUTE")
     ev:addHeader("from", aor)
     ev:addHeader("login", aor)
     ev:addHeader("presence-id", aor)
-    ev:addHeader("unique-id", api:execute("create_uuid"))
+    -- Stable dialog id per key so a terminated NOTIFY replaces the confirmed one.
+    ev:addHeader("unique-id", aor)
     ev:addHeader("status", "Active (1 waiting)")
     ev:addHeader("event_count", "1")
     ev:addHeader("rpid", "unknown")
 
     if enabled then
         ev:addHeader("answer-state", "confirmed")   -- LED ON
+        ev:addHeader("channel-state", "CS_EXECUTE")
     else
         ev:addHeader("answer-state", "terminated")  -- LED OFF
+        ev:addHeader("channel-state", "CS_HANGUP")
     end
 
     debug_log("NOTICE", string.format(
