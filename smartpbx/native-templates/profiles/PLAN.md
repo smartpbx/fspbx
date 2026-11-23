@@ -94,3 +94,17 @@ Order (follows the cutover order from the issue, bulk-safe first):
 4. 23 Polycom devices with empty profiles: no key work; cutover only.
 
 Open items: (a) `-initial` X303 devices carry a fixed Page key `*724` (#4358); (b) Yealink `park` (type 10) is the nicer long-term mapping but changes lamp behaviour, so it needs a bench probe; (c) the harness proof simulates the template rather than reading a stored one, so repeat it with the real row for the first device in each batch.
+
+## 6. Escaping census (counts only; for patchbay#4364)
+
+Characters tested: `&`, `<`, `>`, `"`, `'`. Enabled devices on fspbx01, 2026-11-23: 728 in 80 tenants (720 legacy, 8 native).
+
+| Secret | Native | Legacy | Tenants |
+|---|---|---|---|
+| SIP line password (`v_device_lines.password`) | 0 devices | 21 devices | 2 |
+| Device password (`v_devices.device_password`) | 0 | 0 | 0 |
+| Provision/phone setting with `pass`/`secret`/`pin` in a domain setting | 0 | 0 | 0 |
+| Provision `http_auth_password` (default setting) | 1 default setting contains one of the characters; it applies to every device without a domain override (no domain override has one): all 728 devices, 80 tenants | | |
+| Any other default or domain setting named `*pass*`/`*secret*` | none | none | none |
+
+So the escaping risk today is the 21 legacy SIP line passwords (not yet native) and the one default `http_auth_password`, which every template embeds in digest or directory URLs. LDAP/admin secrets were not found under those names in the provision/phone categories.
