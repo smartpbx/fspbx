@@ -1,0 +1,12 @@
+name: ht881-smartpbx
+vendor: grandstream
+models: "HT881 (8 FXO + 1 FXS gateway); also renders for HT841 (same file as native ht841 ab1023d7 plus the URL block)"
+flavor: "cfgmac.xml"
+cloned_from: "no stock template; extended from legacy grandstream/ht841 file (= native ht841 ab1023d7 v1.0.0). Legacy ht881 template dir does not exist."
+provisioning_url_setting: "grandstream_config_server_path (P237, new: legacy ht841 file carries no URL)"
+line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
+settings_read:
+  - grandstream_config_server_path
+  - grandstream_ht881_ports_5_8
+  - provision_base_url

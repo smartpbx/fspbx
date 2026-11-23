@@ -1,0 +1,54 @@
+name: ht80x-smartpbx
+vendor: grandstream
+models: "HT801, HT802 (one file; port-2 values render only for HT802)"
+flavor: "cfgmac.xml"
+cloned_from: "grandstream/HT80x V2 e476f3f4-15db-46ed-a017-31d1d20466e2 v1.0.10 (NOT used as base: ported from legacy grandstream/ht801 + ht802 files, 345/458 P-values vs 69 in stock)"
+provisioning_url_setting: "grandstream_config_server_path (P237)"
+line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
+settings_read:
+  - admin_password
+  - device_firmware_version
+  - grandstream_auto_dial_delay
+  - grandstream_auto_dial_number
+  - grandstream_auto_upgrade
+  - grandstream_call_waiting
+  - grandstream_config_server_path
+  - grandstream_dhcp_option_override
+  - grandstream_dhcp_option_override_sip_server
+  - grandstream_dhcp_time_zone
+  - grandstream_dial_plan
+  - grandstream_dns_mode
+  - grandstream_dtmf_method_1
+  - grandstream_dtmf_method_2
+  - grandstream_dtmf_method_3
+  - grandstream_fax_mode
+  - grandstream_firmware_path
+  - grandstream_gxp_time_zone
+  - grandstream_ipv_mode
+  - grandstream_lan_port_vlan
+  - grandstream_loop_current_disconnect
+  - grandstream_nat_traversal_1
+  - grandstream_offhook_auto_dial_1
+  - grandstream_offhook_auto_dial_2
+  - grandstream_qos_rtp
+  - grandstream_qos_sip
+  - grandstream_send_sip_log
+  - grandstream_session_timer
+  - grandstream_srtp
+  - grandstream_syslog_level
+  - grandstream_syslog_server
+  - grandstream_tr069_enable
+  - grandstream_tr069_periodic_inform_enable
+  - http_auth_password
+  - http_auth_username
+  - line_1_echo_canceller
+  - line_1_echo_suppressor
+  - line_2_echo_canceller
+  - line_2_echo_suppressor
+  - line_echo_canceller
+  - line_echo_suppressor
+  - nway_conference
+  - provision_base_url
+  - subscribe_mwi
+  - user_password

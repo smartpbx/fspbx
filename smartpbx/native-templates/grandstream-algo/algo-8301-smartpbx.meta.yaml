@@ -1,0 +1,18 @@
+name: algo-8301-smartpbx
+vendor: algo
+models: "Algo 8301 (devices carry legacy template name algo/8103); 8301 deltas applied"
+flavor: "mac.cfg (request algom<mac>.conf)"
+cloned_from: "algo/8301 90b10b4e-cff4-413b-a920-97e5bb0bb8d6 v1.0.1, patched to match legacy algo/8103"
+provisioning_url_setting: "algo_provision_url (new, optional; default = legacy)"
+line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
+settings_read:
+  - admin_password
+  - algo_page_vol
+  - algo_provision_url
+  - algo_ring_vol
+  - algo_sip_transport
+  - algo_timezone
+  - http_auth_password
+  - http_auth_username
+  - ntp_server_primary
