@@ -1,0 +1,29 @@
+name: Agent rules size
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'docs/agent/**'
+      - '.github/scripts/check-agents-md.py'
+      - '.github/workflows/agent-rules.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'AGENTS.md'
+      - 'docs/agent/**'
+      - '.github/scripts/check-agents-md.py'
+      - '.github/workflows/agent-rules.yml'
+
+concurrency:
+  group: agent-rules-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  size:
+    name: AGENTS.md stays under 6 KiB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check always-loaded rules
+        run: python3 .github/scripts/check-agents-md.py
