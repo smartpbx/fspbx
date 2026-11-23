@@ -487,19 +487,7 @@ class RingGroupController extends Controller
         try {
             DB::transaction(function () use ($validated, $domain_uuid, $domain, $rg) {
 
-                $existing = ['strategy' => $rg->ring_group_strategy, 'members' => null];
-                if (! array_key_exists('members', $validated) && array_key_exists('ring_group_strategy', $validated)) {
-                    // Strategy changed without members: recalc from the stored members.
-                    $existing['members'] = $rg->destinations()->get()->map(fn ($d) => [
-                        'enabled' => $d->destination_enabled,
-                        'timeout' => $d->destination_timeout,
-                        'delay' => $d->destination_delay,
-                        'destination_enabled' => $d->destination_enabled,
-                        'destination_timeout' => $d->destination_timeout,
-                    ])->all();
-                }
-
-                $updateData = app(RingGroupService::class)->buildUpdateData($validated, (string) $domain->domain_name, $existing);
+                $updateData = app(RingGroupService::class)->buildUpdateData($validated, (string) $domain->domain_name);
 
                 $rg->update($updateData);
 
