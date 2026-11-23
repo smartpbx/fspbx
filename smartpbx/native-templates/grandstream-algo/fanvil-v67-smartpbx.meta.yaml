@@ -1,0 +1,63 @@
+name: fanvil-v67-smartpbx
+vendor: fanvil
+models: "Fanvil V64/V67"
+flavor: "mac.cfg (request <mac>.cfg)"
+cloned_from: "no stock template; ported from legacy fanvil/v67 (static key layout, same as legacy)"
+provisioning_url_setting: "fanvil_provision_url (FlashServerIP)"
+line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
+settings_read:
+  - admin_name
+  - admin_password
+  - dns_server_primary
+  - dns_server_secondary
+  - fanvil_country_toneset
+  - fanvil_date_display
+  - fanvil_date_separator
+  - fanvil_default_answer_mode
+  - fanvil_default_dial_mode
+  - fanvil_default_ringtone
+  - fanvil_display_brightness_active
+  - fanvil_display_brightness_inactive
+  - fanvil_display_inactivity_time
+  - fanvil_dscp_rtp_video
+  - fanvil_dscp_rtp_voice
+  - fanvil_dscp_sip
+  - fanvil_dst_fixed_type
+  - fanvil_dst_minute_offset
+  - fanvil_enable_diffserv
+  - fanvil_enable_dst
+  - fanvil_enable_sntp
+  - fanvil_enable_vlan
+  - fanvil_firmware_config
+  - fanvil_greeting
+  - fanvil_lan_port_vlan
+  - fanvil_lldp_learn
+  - fanvil_lldp_refresh
+  - fanvil_lldp_tx_enable
+  - fanvil_location
+  - fanvil_pc_port_vlan
+  - fanvil_provision_url
+  - fanvil_qos_rtp_video
+  - fanvil_qos_rtp_voice
+  - fanvil_qos_sip
+  - fanvil_ringtone_line1
+  - fanvil_softkey_desktopclick
+  - fanvil_softkey_desktopsoftkey
+  - fanvil_softkey_exit
+  - fanvil_softkey_ringingsoftkey
+  - fanvil_softkey_talkingsoftkey
+  - fanvil_stun_port
+  - fanvil_stun_server
+  - fanvil_syslog_enable
+  - fanvil_syslog_server
+  - fanvil_syslog_server_port
+  - fanvil_time_display
+  - fanvil_time_zone
+  - fanvil_time_zone_name
+  - fanvil_video_codec
+  - http_auth_password
+  - http_auth_username
+  - ntp_server_primary
+  - ntp_server_secondary
+  - voicemail_number

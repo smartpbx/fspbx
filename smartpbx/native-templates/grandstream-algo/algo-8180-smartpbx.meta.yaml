@@ -1,0 +1,13 @@
+name: algo-8180-smartpbx
+vendor: algo
+models: "Algo 8180 G2"
+flavor: "mac.cfg (request algom<mac>.conf)"
+cloned_from: "no stock template (8186 is a different product); ported from legacy algo/8180"
+provisioning_url_setting: "algo_provision_url (new, optional; default = legacy tenant-domain/app/provision over http)"
+line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
+settings_read:
+  - algo_provision_url
+  - http_auth_password
+  - http_auth_username
+  - ntp_server_primary

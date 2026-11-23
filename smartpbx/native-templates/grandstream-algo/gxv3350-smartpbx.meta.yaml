@@ -1,0 +1,66 @@
+name: gxv3350-smartpbx
+vendor: grandstream
+models: "GXV3350 (legacy template name gxv3240)"
+flavor: "cfgmac.xml"
+cloned_from: "no stock template; ported from legacy grandstream/gxv3240"
+provisioning_url_setting: "grandstream_config_server_path (P237)"
+line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
+settings_read:
+  - admin_password
+  - contact_grandstream
+  - device_firmware_version
+  - grandstream_account_ring_tone_1
+  - grandstream_auto_upgrade
+  - grandstream_check_sip_user_id
+  - grandstream_config_server_path
+  - grandstream_dhcp_option_override
+  - grandstream_dhcp_option_override_sip_server
+  - grandstream_dhcp_time_zone
+  - grandstream_dial_plan
+  - grandstream_disable_active_mpk_page
+  - grandstream_distinctive_ringtone_name_1
+  - grandstream_firmware_path
+  - grandstream_gxp_time_zone
+  - grandstream_headset_key_mode
+  - grandstream_headset_ring
+  - grandstream_headset_rx_gain
+  - grandstream_headset_tx_gain
+  - grandstream_headset_type
+  - grandstream_idle_mute_function
+  - grandstream_ipv_mode
+  - grandstream_lan_port_vlan
+  - grandstream_ldap_base_dn
+  - grandstream_ldap_mail_attr
+  - grandstream_ldap_mail_filter
+  - grandstream_ldap_name_attr
+  - grandstream_ldap_name_filter
+  - grandstream_ldap_number_attr
+  - grandstream_ldap_number_filter
+  - grandstream_ldap_server
+  - grandstream_nat_traversal_1
+  - grandstream_pc_port_vlan
+  - grandstream_phonebook_xml_server_path
+  - grandstream_ring_tone_1_1
+  - grandstream_ring_tone_2_1
+  - grandstream_ring_tone_3_1
+  - grandstream_ring_tone_caller_id_1_1
+  - grandstream_ring_tone_caller_id_2_1
+  - grandstream_ring_tone_caller_id_3_1
+  - grandstream_send_sip_log
+  - grandstream_sip_only_known_servers
+  - grandstream_stun_server
+  - grandstream_syslog_level
+  - grandstream_syslog_server
+  - grandstream_tr069_enable
+  - grandstream_tr069_periodic_inform_enable
+  - grandstream_validate_incoming_sip
+  - http_auth_password
+  - http_auth_username
+  - ldap_password
+  - ldap_username
+  - ntp_server_primary
+  - nway_conference
+  - subscribe_mwi
+  - user_password
+  - voicemail_number
