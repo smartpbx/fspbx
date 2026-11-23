@@ -61,7 +61,6 @@ settings_read:
   - ldap_username
   - ntp_server_primary
   - nway_conference
-  - provision_base_url
   - subscribe_mwi
   - user_password
   - voicemail_number

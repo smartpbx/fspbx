@@ -8,8 +8,8 @@ Each is a mechanical port of the legacy Smarty file (Smarty tags converted to Bl
 ## Provisioning URL and rollback rule
 | Models | URL comes from | Rendered line (legacy = native today) |
 |---|---|---|
-| HT801/HT802/HT818/HT841/HT881/GXV3350 | `grandstream_config_server_path` (default > domain > device), `P237`; `none` renders empty; unset falls back to `provision_base_url` | `<P237>https://provision.smartpbx.io/app/provision` |
-| Fanvil V67 | `fanvil_provision_url`, `FlashServerIP` | `<FlashServerIP>https://provision.smartpbx.io/app/provision/` |
+| HT801/HT802/HT818/HT841/HT881/GXV3350 | `grandstream_config_server_path` (default > domain > device), `P237`; `none` renders empty P237 (phone stops following a server, same as legacy); unset OR empty falls back to the literal legacy default (never `provision_base_url`, which is always the /prov/ base) | `<P237>https://provision.smartpbx.io/app/provision` |
+| Fanvil V67 | `fanvil_provision_url`, `FlashServerIP`; unset or empty falls back to the full legacy URL with scheme | `<FlashServerIP>https://provision.smartpbx.io/app/provision/` |
 | Algo 8180/8301 | legacy has NO url setting (tenant domain + `app/provision` over http). New optional setting `algo_provision_url`; unset = legacy bytes | `prov.server.static = <tenant>`, `prov.download.cfgpath = app/provision`, `prov.download.method = http`, `prov.server.method = static` |
 
 Cutover (Grandstream/Fanvil): set the device's URL setting to the `/prov/` URL and set `device_template_uuid`; the phone picks the new URL from the first config it pulls (Grandstream `P237`, Fanvil `FlashServerIP` are persisted by the phone). Cutover (Algo): set device setting `algo_provision_url=https://provision.smartpbx.io/prov` (template then renders host, path `prov`, method `https`, and pushes `prov.auth.*`; the default renders them blank like legacy). Rollback: set the URL setting back to the legacy URL (Algo: delete `algo_provision_url`) while the template is still assigned, wait for one pull, then clear `device_template_uuid`. The /prov/ request for Grandstream needs `cfg<mac>.xml`, for Algo `algom<mac>.conf`, for Fanvil `<mac>.cfg`: all resolve in the native flavor switch. Note: a Grandstream phone only reaches native after its URL changes; the first native render must be pulled through legacy or the URL changed on the phone (web UI / option 66). Not proven live (needs a pilot phone): that the phone persists the new URL and re-pulls from it. The cutover values themselves (`algo_provision_url` branch) were not rendered because a setting cannot be created offline.
@@ -31,7 +31,7 @@ Fleet reality: there are only 3 HT80x, 1 HT818, 1 GXV3350, 2 Algo 8180, 7 Algo 8
 Algo 8301 devices carry legacy template name `algo/8103`, whose file is misnamed `algom{}.conf`, so real legacy requests 404. Their legacy baseline was rendered with a /tmp copy of the harness whose rewrite maps `algom<mac>.conf` to that file (same method as wave 1).
 
 ## Remaining differences
-- D1 HT80x 102905: legacy output is not well-formed XML (its provision HTTP password contains `&`); native renders `&amp;` (valid; proven by count: legacy P1361 raw `&` 1, escaped 0; native raw 0, escaped 1). Intended. The phone's XML parser decodes `&amp;`; if a bench phone shows auth failure, switch P1360/P1361 to `{!! !!}` (probe).
+- D1 HT80x 102905: legacy output is not well-formed XML (its provision HTTP password contains `&`); native renders `&amp;` (valid; proven by count: legacy P1361 raw `&` 1, escaped 0; native raw 0, escaped 1). **HARD CUTOVER GATE for 102905 (and any line whose provision password contains `& < > " '` on these XML templates, patchbay#4364):** the phone works today on a raw bare `&`, so its parser is tolerant, and a tolerant parser may take `&amp;` literally and then fail digest auth against /prov/ (lockout, recoverable only from the phone's web UI). Do NOT cut 102905 over (set `device_template_uuid`) until a bench probe proves the phone authenticates with the `&amp;` form (bench phone with a provision password containing `&`, pull once, check auth success); if it fails, switch P1360/P1361 to `{!! !!}` and re-probe. No other HT80x/HT818/HT881/GXV3350 device has such a character today.
 - D2 GXV3350/HT80x: compare shows `gs_provision@version`, `config@version`, `mac` only because the legacy file is not well-formed XML for those tenants (compare falls back to a tolerant scan). Harmless.
 - D3 Algo 8301 `admin.timezone`: legacy file glues `admin.timezone = America/New_York` to the next line (missing newline); native has a separate `admin.voice = en`. Intended fix.
 - D4 Algo 8301: 26 native-only keys (`audio.ring.tone6-9`, `mcast.polycom.tone30-50`): newer-firmware defaults from the stock template. Harmless.
@@ -40,6 +40,7 @@ Algo 8301 devices carry legacy template name `algo/8103`, whose file is misnamed
 - D7 Fanvil V67 `<line index="">`: legacy emits an empty index (`device_key_id` does not exist on device lines); ported as-is so output is identical. Needs bench probe whether the phone accepts it (it does today).
 
 ## Needs bench probe (open)
+0. **GATE:** HT80x 102905 `&amp;` provision password decodes and authenticates (see D1). Blocks cutover of that device.
 1. HT881 ports 5-8: P-value numbering is extrapolated (+1 per port from ports 1-4). Ports 5-8 are OFF unless device setting `grandstream_ht881_ports_5_8=1`. Devices 105421 (7 lines) and 107562 (5 lines) need this; ports 1-4 render (4 account values each). The HT881 has 8 FXO + 1 FXS ports (Grandstream manual); confirm with Grandstream's HT881 P-value template.
 2. GXV3350 key loops (line keys, expansion modules) are ported but untested: the only device has no keys. Probe with a device that has keys.
 3. Cutover phone behaviour: P237/FlashServerIP/Algo `prov.*` persistence, digest auth against /prov/.
@@ -65,3 +66,17 @@ Deprecated device profile: both V67 (104211, 105389) use profile "2 Park Keys"; 
 ## Recommendations for the rest of the family
 - Cisco SPA112/122/191 (3 devices: 100044, 100023, 100151): no native template exists and none is planned upstream; recommend STAY LEGACY, retire when legacy goes (replace with HT801/HT802 where analog is still needed).
 - Polycom 5.x_old (3 devices: 100137 64167f3b55fb, 100151 64167f432d72 and 4825670697cf): firmware-5 file format; native polycom/VVX is 6.x+. Recommend RETIRE/UPGRADE the phones (64167f432d72 last pulled 2025-05-23); do not template.
+
+## Unset and empty URL setting (review 3 fix)
+Rendered with the harness (`render.sh --legacy` vs `--native --template-file`, variant files in /tmp prepending an unset or an empty-string of `grandstream_config_server_path` / `fanvil_provision_url`; files deleted). Every row below is legacy vs native with the setting UNSET, then EMPTY: key counts and diffs are identical to the normal render, and the URL line is the legacy default, never /prov/ (values not pasted; the URL is not a secret).
+| Template | Devices | unset | empty |
+|---|---|---|---|
+| ht80x | 105488, 102905, 100250 | P237 = legacy URL; 348/348, 345 (+3 native-only, as before), 461/461 identical | same |
+| ht818 | 105291 | P237 = legacy URL; 414/414 identical | same |
+| gxv3350 | 100203 | P237 = legacy URL; 1759/1760 (same as before, D2) | same |
+| ht881 (HT841) | 023631, 107638 | P237 = legacy URL; only the 2 added URL keys (D5) | same |
+| fanvil-v67 | 104211, 105389 | FlashServerIP = `https://provision.smartpbx.io/app/provision/`; 1518/1518 identical | same |
+Negative control: the previous revision of ht80x with the setting unset rendered P237 as the /prov/ base on 105488; the fixed file does not. Algo is unaffected (unset and empty `algo_provision_url` already fall back to the legacy http tenant-domain URL).
+
+## Accepted fixed credentials (review 3 item 5)
+Ported byte for byte from legacy, not tenant secrets, but pushed to every phone: Fanvil V67 `MenuPassword`/`KeyLockPassword`/admin password default `admin`; Algo `admin.pwd = algo`. Accepted diff = none (identical to legacy); replacing them is a separate decision.

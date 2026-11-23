@@ -41,5 +41,4 @@ settings_read:
   - http_auth_username
   - ntp_server_primary
   - nway_conference
-  - provision_base_url
   - subscribe_mwi

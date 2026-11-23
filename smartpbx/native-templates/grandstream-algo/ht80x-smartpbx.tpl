@@ -122,13 +122,13 @@
 
     <!-- Config Server Path -->
     <!-- Server address;  -->
-    {{-- Provisioning URL: same setting as legacy (grandstream_config_server_path via default > domain > device). Cutover sets it to the /prov/ URL; rollback sets it back to the legacy URL. --}}
+    {{-- Provisioning URL: same setting as legacy (grandstream_config_server_path via default > domain > device). Cutover sets it to the /prov/ URL; rollback sets it back to the legacy URL. Unset or empty falls back to the legacy URL (never provision_base_url, which is always /prov/). 'none' renders empty P237 like legacy. --}}
     @if(($settings['grandstream_config_server_path'] ?? null) === 'none')
     <P237></P237>
-    @elseif(isset($settings['grandstream_config_server_path']))
+    @elseif(($settings['grandstream_config_server_path'] ?? '') !== '')
     <P237>{{ $settings['grandstream_config_server_path'] }}</P237>
     @else
-    <P237>{{ $settings['provision_base_url'] ?? ($domain_name . '/prov') }}</P237>
+    <P237>https://provision.smartpbx.io/app/provision</P237>
     @endif()
 
     <!-- # XML Config File Password -->

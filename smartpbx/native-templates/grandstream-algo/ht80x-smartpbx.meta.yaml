@@ -49,6 +49,5 @@ settings_read:
   - line_echo_canceller
   - line_echo_suppressor
   - nway_conference
-  - provision_base_url
   - subscribe_mwi
   - user_password

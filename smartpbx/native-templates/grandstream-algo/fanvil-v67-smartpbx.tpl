@@ -1902,7 +1902,7 @@
         <DownloadCommonConf>1</DownloadCommonConf>
         <SaveProvisionInfo>1</SaveProvisionInfo>
         <CheckFailTimes>5</CheckFailTimes>
-        <FlashServerIP>@if(isset($settings['fanvil_provision_url'])){{ ($settings['fanvil_provision_url'] ?? '') }}@else(){{ $domain_name }}/app/provision{{ '' }}@endif()</FlashServerIP>
+        <FlashServerIP>@if(($settings['fanvil_provision_url'] ?? '') !== ''){{ $settings['fanvil_provision_url'] }}@else()https://provision.smartpbx.io/app/provision/@endif()</FlashServerIP>
         <FlashFileName>{{ ($settings['fanvil_firmware_config'] ?? '') }}</FlashFileName>
         <FlashProtocol>5</FlashProtocol>
         <FlashMode>1</FlashMode>

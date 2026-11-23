@@ -9,4 +9,3 @@ other_variables: [domain_name, mac, device_firmware_version, template, device_mo
 settings_read:
   - grandstream_config_server_path
   - grandstream_ht881_ports_5_8
-  - provision_base_url
