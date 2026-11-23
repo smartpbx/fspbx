@@ -27,7 +27,7 @@ step, and it would stamp that device: not done without approval.
 
 ## 3. compare.sh checks
 - Same file against itself with `--include-same`: Fanvil 1583 keys, 1583 same; Polycom secrets (`device.auth.localAdminPassword`) show `<redacted>`.
-- Fanvil legacy vs stock XU Series: 27 differing values, matching the wave-1 numbers. Yealink T46U legacy vs stock T4: 42 same, 18 differ.
+- Fanvil 105229 legacy vs stock XU Series: 1583 vs 399 keys, 170 same, 27 differ, 1386 only legacy, 202 only native (identical to the wave-1 numbers). Yealink T46U legacy vs stock T4: 42 same, 18 differ.
 - Grandstream legacy (P-values, bare `&` in the file, tolerant scan) vs stock native (`<item name>`): disjoint key sets without `--map`; P2, P34, P1361 (comment "Config HTTP/HTTPS Password") masked.
 
 ## Known limits / open items
