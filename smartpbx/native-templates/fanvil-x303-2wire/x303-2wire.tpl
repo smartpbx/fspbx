@@ -1,4 +1,4 @@
-{{-- version: 1.0.0 --}}
+{{-- version: 1.0.1 --}}
 {{-- Custom template: Fanvil X303-2 Wire. Ported from legacy fanvil/x303-2wire; cloned from stock XU Series 1.1.3. --}}
 {{-- See smartpbx/native-templates/fanvil-x303-2wire/VERIFY.md --}}
 
@@ -13,6 +13,15 @@
     $L = static fn (int $n, string $f) => $lines[$n][$f] ?? '';
     $T = static fn (int $n) => strtolower(trim((string) ($lines[$n]['sip_transport'] ?? '')));
     $ttl = static fn (int $n) => isset($lines[$n]) ? (($lines[$n]['register_expires'] ?? null) ?: 120) : '';
+    // Same fallback as the prod hot edit: use fanvil_subscribe_expires when it is set.
+    $subExpire = static function (mixed $fallback) use ($settings): mixed {
+        $value = $settings['fanvil_subscribe_expires'] ?? null;
+        if ($value === null || $value === '') {
+            return $fallback;
+        }
+
+        return $value;
+    };
     $addr = static fn (int $n) => isset($lines[$n])
         ? (($lines[$n]['server_address'] ?? null) ?: (($lines[$n]['server_address_primary'] ?? null) ?: ($domain_name ?? '')))
         : '';
@@ -231,7 +240,7 @@
             <NATType>0</NATType>
             <EnableRport>1</EnableRport>
             <Subscribe>1</Subscribe>
-            <SubExpire>{{ $ttl(1) }}</SubExpire>
+            <SubExpire>{{ $subExpire($ttl(1)) }}</SubExpire>
             <SingleCodec>0</SingleCodec>
             <CLIR>0</CLIR>
             <StrictProxy>1</StrictProxy>
@@ -400,7 +409,7 @@
             <NATType>0</NATType>
             <EnableRport>1</EnableRport>
             <Subscribe>0</Subscribe>
-            <SubExpire>{{ $ttl(2) }}</SubExpire>
+            <SubExpire>{{ $subExpire($ttl(2)) }}</SubExpire>
             <SingleCodec>0</SingleCodec>
             <CLIR>0</CLIR>
             <StrictProxy>1</StrictProxy>
@@ -569,7 +578,7 @@
             <NATType>0</NATType>
             <EnableRport>1</EnableRport>
             <Subscribe>0</Subscribe>
-            <SubExpire>{{ $ttl(3) }}</SubExpire>
+            <SubExpire>{{ $subExpire($ttl(3)) }}</SubExpire>
             <SingleCodec>0</SingleCodec>
             <CLIR>0</CLIR>
             <StrictProxy>1</StrictProxy>
@@ -738,7 +747,7 @@
             <NATType>0</NATType>
             <EnableRport>1</EnableRport>
             <Subscribe>0</Subscribe>
-            <SubExpire>{{ $ttl(4) }}</SubExpire>
+            <SubExpire>{{ $subExpire($ttl(4)) }}</SubExpire>
             <SingleCodec>0</SingleCodec>
             <CLIR>0</CLIR>
             <StrictProxy>1</StrictProxy>

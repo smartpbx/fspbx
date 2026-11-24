@@ -1,4 +1,4 @@
-{{-- version: 1.0.0 | Fanvil V67 | smartpbx custom native template, ported from the legacy Smarty file (patchbay#4352). Edit in git: smartpbx/fspbx smartpbx/native-templates/grandstream-algo/ --}}
+{{-- version: 1.0.1 | Fanvil V67 | smartpbx custom native template, ported from the legacy Smarty file (patchbay#4352). SubExpire reads fanvil_subscribe_expires (patchbay#4456). Edit in git: smartpbx/fspbx smartpbx/native-templates/grandstream-algo/ --}}
 @switch($flavor)
 
 @case('mac.cfg')
@@ -14,6 +14,10 @@
         if (empty($l['sip_port'])) { $l['sip_port'] = ((string) $n === '' || (string) $n === '1') ? '5060' : '506' . ($n + 1); }
         $l['outbound_proxy'] = $l['outbound_proxy_primary'] ?? null;
         $gl[$n] = $l;
+    }
+    $fanvilSubscribeExpires = $settings['fanvil_subscribe_expires'] ?? null;
+    if ($fanvilSubscribeExpires === '') {
+        $fanvilSubscribeExpires = null;
     }
 @endphp
 <?xml version="1.0" encoding="UTF-8"?>
@@ -183,7 +187,7 @@
             <NATType>0</NATType>
             <EnableRport>1</EnableRport>
             <Subscribe>@if(isset($row['user_id']))1{{ '' }}@else()@endif()</Subscribe>
-            <SubExpire>{{ ($row['register_expires'] ?? '') }}</SubExpire>
+            <SubExpire>{{ $fanvilSubscribeExpires !== null ? $fanvilSubscribeExpires : ($row['register_expires'] ?? '') }}</SubExpire>
             <SingleCodec>0</SingleCodec>
             <CLIR>0</CLIR>
             <StrictProxy>1</StrictProxy>

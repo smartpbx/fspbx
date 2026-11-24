@@ -1,7 +1,7 @@
 name: X303-2 Wire
 vendor: fanvil            # lowercase; legacy rows with vendor "Fanvil" (7 devices) render identically
 type: default
-version: 1.0.0
+version: 1.0.1
 engine: blade             # flavor 'mac.cfg' only, like stock XU Series
 models:
   - Fanvil X303-2 Wire    # legacy template fanvil/x303-2wire (250 devices)
@@ -14,7 +14,7 @@ cloned_from:
 ported_from_legacy: /var/www/fspbx/public/resources/templates/provision/fanvil/x303-2wire/{$mac}.cfg  # HandsetVol variant (bak-20260923-handsetvol)
 settings_read:
   provisioning_url: [fanvil_provision_url]   # FlashServerIP; fallback https://<domain>/app/provision like legacy
-  sip: [fanvil_sip_port, fanvil_stun_server, fanvil_stun_port, fanvil_ringtone_line1, fanvil_ringtone_line2, fanvil_ringtone_line3, fanvil_ringtone_line4, fanvil_video_codec]
+  sip: [fanvil_subscribe_expires, fanvil_sip_port, fanvil_stun_server, fanvil_stun_port, fanvil_ringtone_line1, fanvil_ringtone_line2, fanvil_ringtone_line3, fanvil_ringtone_line4, fanvil_video_codec]
   audio_phone: [fanvil_handset_volume, fanvil_country_toneset, fanvil_call_waiting, fanvil_default_answer_mode, fanvil_default_dial_mode, fanvil_default_ringtone, fanvil_menu_password, fanvil_keylock_password, fanvil_emergency_number, fanvil_greeting, fanvil_display_brightness_active, fanvil_display_brightness_inactive, fanvil_display_inactivity_time]
   time_dst: [fanvil_time_zone, fanvil_time_zone_name, fanvil_location, fanvil_dst_minute_offset, fanvil_enable_sntp, fanvil_time_display, fanvil_date_display, fanvil_date_separator, ntp_server_primary, ntp_server_secondary]
   softkeys: [fanvil_softkey_exit, fanvil_softkey_desktopsoftkey, fanvil_softkey_talkingsoftkey, fanvil_softkey_ringingsoftkey, fanvil_softkey_desktopclick]

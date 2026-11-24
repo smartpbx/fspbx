@@ -5,6 +5,7 @@ flavor: "mac.cfg (request <mac>.cfg)"
 cloned_from: "no stock template; ported from legacy fanvil/v67 (static key layout, same as legacy)"
 provisioning_url_setting: "fanvil_provision_url (FlashServerIP)"
 line_variables: [server_address, server_address_secondary, outbound_proxy_primary, outbound_proxy_secondary, sip_port, sip_transport, register_expires, user_id, auth_id, password, display_name]
+sub_expire: fanvil_subscribe_expires when set, else the line register_expires (patchbay#4456)
 other_variables: [domain_name, mac, device_firmware_version, template, device_model, main_keys, expansion_keys]
 settings_read:
   - admin_name
@@ -49,6 +50,7 @@ settings_read:
   - fanvil_softkey_ringingsoftkey
   - fanvil_softkey_talkingsoftkey
   - fanvil_stun_port
+  - fanvil_subscribe_expires
   - fanvil_stun_server
   - fanvil_syslog_enable
   - fanvil_syslog_server

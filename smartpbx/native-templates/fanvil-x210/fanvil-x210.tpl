@@ -5,7 +5,7 @@
      first line (legacy: 36000); TimeZone blank unless fanvil_time_zone is set (legacy); legacy RTP range;
      SoftKeyExitStyle 1. FlashServerIP comes from fanvil_provision_url (default -> domain -> device); when unset it
      falls back to https://<domain>/app/provision exactly as legacy, so assigning the template never moves a phone. --}}
-{{-- version: 1.1.3-x210.1 --}}
+{{-- version: 1.1.3-x210.2 --}}
 
 @switch($flavor)
 
@@ -13,6 +13,16 @@
 @case('mac.cfg')
 @php
     $setting = static fn (string $key, mixed $default = '') => $settings[$key] ?? $default;
+
+    // Same fallback as the prod hot edit: use fanvil_subscribe_expires when it is set.
+    $subExpire = static function (mixed $fallback) use ($settings): mixed {
+        $value = $settings['fanvil_subscribe_expires'] ?? null;
+        if ($value === null || $value === '') {
+            return $fallback;
+        }
+
+        return $value;
+    };
 
     $enabled = static function (string $key, bool $default = false) use ($settings): int {
         if (!array_key_exists($key, $settings)) {
@@ -192,7 +202,7 @@
             <SessionTimer>0</SessionTimer>
             <EnableRport>1</EnableRport>
             <Subscribe>1</Subscribe>
-            <SubExpire>{{ $registerExpires }}</SubExpire>
+            <SubExpire>{{ $subExpire($registerExpires) }}</SubExpire>
             <DNSSRV>{{ $usesDnsSrv ? 1 : 0 }}</DNSSRV>
             <DNSMode>{{ $usesDnsSrv ? 1 : 0 }}</DNSMode>
             <Transport>{{ $transportCode($transport) }}</Transport>
