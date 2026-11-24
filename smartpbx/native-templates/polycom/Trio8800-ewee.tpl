@@ -436,7 +436,7 @@
     		tcpIpApp.sntp.gmtOffset.overrideDHCP="1"
     		tcpIpApp.sntp.gmtOffset="{{ $settings['polycom_gmt_offset'] ?? '0' }}"
             tcpIpApp.sntp.daylightSavings.enable="{{ filter_var($settings['daylight_savings_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN) ? '1' : '0' }}"
-    		tcpIpApp.sntp.daylightSavings.fixedDayEnable="1"
+    		tcpIpApp.sntp.daylightSavings.fixedDayEnable="{{ (string) ($settings['polycom_dst_fixed_day_enable'] ?? '') !== '' ? $settings['polycom_dst_fixed_day_enable'] : 1 }}"
     		tcpIpApp.sntp.daylightSavings.start.month="{{ $settings['daylight_savings_start_month'] ?? '3' }}"
     		tcpIpApp.sntp.daylightSavings.start.date="{{ $settings['daylight_savings_start_day'] ?? '8' }}"
     		tcpIpApp.sntp.daylightSavings.start.time="{{ $settings['daylight_savings_start_time'] ?? '2' }}"

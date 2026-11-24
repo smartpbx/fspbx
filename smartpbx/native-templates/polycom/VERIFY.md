@@ -111,3 +111,14 @@ Adding the generated directory later takes: (1) an fspbx Polycom directory forma
 4. `reg.N.outboundProxy.*` with `server.1.address` = tenant domain on one portal-proxy line (restores legacy behaviour; pilot on 107638 and 105416).
 5. Trio 8800 template on a real Trio (5.9.6 and 7.2.8).
 6. Intercom auto-answer line (`alertInfo.2`) is copied from legacy; confirm on a phone that an inbound `*8` intercom answers.
+
+## DST from a setting (patchbay#4373, wave 3)
+
+`tcpIpApp.sntp.daylightSavings.fixedDayEnable` now reads `polycom_dst_fixed_day_enable`. Unset or empty renders 1,
+the old hard-coded value. Read-only harness, 2026-11-24, VVX 450 `482567b7691d` (ewee): `<mac>.cfg` and
+`phone<mac>.cfg` are byte-identical before and after (4269 and 6424 bytes).
+
+Candidate fix: per Polycom UC Software, `fixedDayEnable=0` makes `date` the first day searched for `dayOfWeek`
+(1 = Sunday). North America would be start month 3, date 8, then stop month 11, date 1. For the pilot this goes
+into device settings only: `polycom_dst_fixed_day_enable=0`, `daylight_savings_start_day=8`,
+`daylight_savings_stop_day=1`. It needs the bench read-back on the VVX 450 before any tenant or default change.
