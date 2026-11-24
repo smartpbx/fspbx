@@ -1608,6 +1608,14 @@ class DatabaseSeeder extends Seeder
                 'default_setting_enabled'       => false,
                 'default_setting_description'   => "It configures the password of a specific wireless network.",
             ],
+            [
+                'default_setting_category'      => 'provision',
+                'default_setting_subcategory'   => 'fanvil_subscribe_expires',
+                'default_setting_name'          => 'numeric',
+                'default_setting_value'         => '600',
+                'default_setting_enabled'       => true,
+                'default_setting_description'   => 'Fanvil SIP subscription expiry in seconds (SubExpire). Default 600.',
+            ],
 
 
 

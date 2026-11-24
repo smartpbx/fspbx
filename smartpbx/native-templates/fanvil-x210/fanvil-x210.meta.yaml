@@ -13,7 +13,7 @@ base:
   uuid: 3b9563d1-b4bf-41a7-a4ce-ddf51f20b60c
   version: 1.1.3
   source_file: /var/www/fspbx/resources/provisioning/fanvil/XU Series/template.blade.php
-version: 1.1.3-x210.1
+version: 1.1.3-x210.2
 flavors: [mac.cfg]                # same as stock: one @case('mac.cfg')
 changes_vs_stock:
   - dssSide: all 10 side keys written (blank = Type 0), stock wrote max(5, highest)
@@ -23,6 +23,7 @@ changes_vs_stock:
   - TimeZone: blank unless fanvil_time_zone is set (legacy behaviour; stock wrote 0)
   - RTP: start 16384, quantity 16384, keepalive off (legacy)
   - SoftKeyExitStyle default 1 (legacy)
+  - SubExpire from fanvil_subscribe_expires when set, else the line register expiry (patchbay#4456)
 provisioning_url:
   tag: sysConf/ap/FlashServerIP
   setting: fanvil_provision_url     # default -> domain -> device chain, same key the legacy x210 file reads

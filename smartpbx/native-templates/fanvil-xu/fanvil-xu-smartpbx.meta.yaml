@@ -9,11 +9,13 @@ base:
   uuid: 3b9563d1-b4bf-41a7-a4ce-ddf51f20b60c
   version: 1.1.3
   source_file: resources/provisioning/fanvil/XU Series/template.blade.php (fspbx main at f367ebfd, incl. OtherPopup #16)
-version: 1.1.3-xu.1
+version: 1.1.3-xu.2
 flavors: [mac.cfg]
 changes_vs_stock:
   - sysConf/ap/opt/DHCPOption from setting fanvil_dhcp_option (default -> domain -> device); unset or empty = 66 (stock)
+  - sip/line/SubExpire from fanvil_subscribe_expires when set, else the line register expiry (patchbay#4456)
 settings_read:
   new_in_this_template:
     - fanvil_dhcp_option (66)
+    - fanvil_subscribe_expires (600; unset falls back to the line register expiry)
 secrets: none in the file

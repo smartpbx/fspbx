@@ -211,7 +211,7 @@
             <NATType>0</NATType>
             <EnableRport>1</EnableRport>
             <Subscribe>1</Subscribe>
-            <SubExpire>3600</SubExpire>
+            <SubExpire>{if isset($fanvil_subscribe_expires)}{$fanvil_subscribe_expires}{else}3600{/if}</SubExpire>
             <SingleCodec>0</SingleCodec>
             <CLIR>0</CLIR>
             <StrictProxy>1</StrictProxy>
