@@ -91,7 +91,7 @@ class FaxChannelGuardTest extends TestCase
         ]], false));
         $this->assertSame('redispatch', FaxChannelGuard::phaseADecision(true, [], false));
         $this->assertSame('leave', FaxChannelGuard::phaseADecision(false, [], null));
-        $this->assertSame('redispatch', FaxChannelGuard::phaseADecision(false, [], false));
+        $this->assertSame('leave', FaxChannelGuard::phaseADecision(false, [], false));
     }
 
     public function test_uuid_exists_boolean_false_from_json_means_the_call_is_gone(): void

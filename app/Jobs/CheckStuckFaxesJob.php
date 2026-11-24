@@ -30,8 +30,9 @@ use Throwable;
  *         call_uuid against the channel uuid / origination_uuid /
  *         originating_leg_uuid / call_uuid. A match is not redispatched:
  *         fax_success=1 is marked sent, anything else is left for phase C.
- *         Only when nothing matches and uuid_exists says the row uuid is
- *         gone do we redispatch.
+ *         Only when the channel list was read, nothing matches, and
+ *         uuid_exists says the row uuid is gone do we redispatch. A failed
+ *         channel list leaves the row alone.
  *
  *   B — status='sending', call_uuid IS NULL (originate failed before saving)
  *         and retry_at older than 5 min: revert to 'trying' and redispatch.
@@ -40,6 +41,7 @@ use Throwable;
  *         floor. When we don't know the page count, fall back to a flat 6 h.
  *         fax_success=1 on any matched channel is sent, never failed. Otherwise
  *         hang up every matched channel and the row uuid, then trying or failed.
+ *         A failed channel list does not mark the row.
  *
  *   D — status in waiting/trying/busy and retry_at past the retry interval +
  *         a small buffer: the dispatch was lost (Redis flush, primary died).
@@ -129,6 +131,14 @@ class CheckStuckFaxesJob implements ShouldQueue
      */
     private function phaseA(FreeswitchEslService $esl, ?array $channels): void
     {
+        if (! is_array($channels)) {
+            // uuid_exists on the row uuid is false after loopback bowout while
+            // the gateway is still in txfax. Do not redispatch without a list.
+            fax_webhook_debug('CheckStuckFaxesJob phaseA: channel list unavailable, not redistributing');
+
+            return;
+        }
+
         $rows = OutboundFax::where('status', 'sending')
             ->whereNotNull('call_uuid')
             ->where('retry_at', '<', now()->subSeconds(self::SENDING_GRACE_SECONDS))
@@ -152,25 +162,14 @@ class CheckStuckFaxesJob implements ShouldQueue
             return;
         }
 
-        $known = is_array($channels);
-        if (! $known && ! $this->ensureConnected($esl)) {
-            // ESL unavailable — Phase C will eventually catch any genuinely-stuck rows.
-            fax_webhook_debug('CheckStuckFaxesJob phaseA: ESL unreachable, deferring liveness checks');
-
-            return;
-        }
-
         foreach ($rows as $fax) {
-            $matched = $known ? $this->matchedChannels($channels, $fax) : [];
+            $matched = $this->matchedChannels($channels, $fax);
             $callExists = null;
-            if (! $known || $matched === []) {
+            if ($matched === []) {
                 $callExists = $this->rowCallExists($esl, $fax);
-                if ($callExists === null && ! $known) {
-                    continue;
-                }
             }
 
-            $decision = FaxChannelGuard::phaseADecision($known, $matched, $callExists);
+            $decision = FaxChannelGuard::phaseADecision(true, $matched, $callExists);
             if ($decision === 'sent') {
                 $this->markSentFromLiveChannel($esl, $fax, $matched);
 
@@ -253,6 +252,14 @@ class CheckStuckFaxesJob implements ShouldQueue
      */
     private function phaseC(FreeswitchEslService $esl, ?array $channels): void
     {
+        if (! is_array($channels)) {
+            // Without the channel list a past-budget row can still be a live
+            // gateway whose fax_success=1 we did not read. Leave it sending.
+            fax_webhook_debug('CheckStuckFaxesJob phaseC: channel list unavailable, leaving sending rows alone');
+
+            return;
+        }
+
         // Pull candidates older than the absolute floor; budget check is
         // per-row in PHP since the threshold depends on total_pages.
         $rows = OutboundFax::where('status', 'sending')
@@ -274,7 +281,7 @@ class CheckStuckFaxesJob implements ShouldQueue
             ]);
 
         foreach ($rows as $fax) {
-            $matched = is_array($channels) ? $this->matchedChannels($channels, $fax) : [];
+            $matched = $this->matchedChannels($channels, $fax);
             if (FaxChannelGuard::anySucceeded($matched)) {
                 $this->markSentFromLiveChannel($esl, $fax, $matched);
 

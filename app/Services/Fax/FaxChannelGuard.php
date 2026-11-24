@@ -131,16 +131,22 @@ final class FaxChannelGuard
     /**
      * What phase A should do once it has looked at live txfax channels.
      *
+     * An unknown channel list never redispatches. uuid_exists on the row
+     * call_uuid is false after loopback bowout while the gateway is still in
+     * txfax, so a failed show channels must not look like "the call is gone".
      * A channel that still matches this fax is never redispatched. Success on
-     * that channel is sent, even when uuid_exists on the row call_uuid is
-     * false (the loopback already bowed out).
+     * that channel is sent.
      *
      * @param  list<array<string, mixed>>  $matched
      * @return 'sent'|'leave'|'redispatch'
      */
     public static function phaseADecision(bool $channelListKnown, array $matched, ?bool $callExists): string
     {
-        if ($channelListKnown && $matched !== []) {
+        if (! $channelListKnown) {
+            return 'leave';
+        }
+
+        if ($matched !== []) {
             return self::anySucceeded($matched) ? 'sent' : 'leave';
         }
 
