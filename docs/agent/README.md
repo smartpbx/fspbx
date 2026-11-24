@@ -12,7 +12,7 @@ Do not put a new rule only here if ignoring it on an unrelated task can ship a b
 | Call Block Runtime | `docs/agent/call-block.md` | 899 |
 | Devices And Provisioning | `docs/agent/devices-provisioning.md` | 5806 |
 | Email Templates | `docs/agent/email-templates.md` | 2862 |
-| Fax Jobs And Retention | `docs/agent/fax.md` | 1380 |
+| Fax Jobs And Retention | `docs/agent/fax.md` | 3272 |
 | FreeSWITCH Files, Lua Expectations | `docs/agent/freeswitch-files.md` | 2455 |
 | FreeSWITCH Modules Page | `docs/agent/freeswitch-modules.md` | 1604 |
 | Laravel And Vue Pages | `docs/agent/laravel-vue-pages.md` | 1752 |
