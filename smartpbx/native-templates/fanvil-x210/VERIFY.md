@@ -163,3 +163,9 @@ render.sh --domain <d> --mac <m> --legacy --ua "Fanvil X210-V2 2.12.23.3 <m>" > 
 render.sh --domain <d> --mac <m> --native --template-file /tmp/p4352-x210.tpl --ua "Fanvil X210-V2 2.12.23.3 <m>" > native.cfg
 compare.sh legacy.cfg native.cfg --ignore-empty
 ```
+
+## DHCPOption from a setting (patchbay#4352 wave 3)
+
+`sysConf/ap/opt/DHCPOption` now reads `fanvil_dhcp_option` (default 66 when unset or empty, which is the old
+hard-coded value). It exists so a phone on an option-66 site can be moved to `/prov/` per device; see
+`../fanvil-xu/VERIFY.md`. Render with no setting: unchanged, 66.

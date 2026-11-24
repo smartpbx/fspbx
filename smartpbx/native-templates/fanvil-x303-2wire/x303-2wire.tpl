@@ -1750,7 +1750,7 @@
             <PNPInterval>1</PNPInterval>
         </pnp>
         <opt>
-            <DHCPOption>66</DHCPOption>
+            <DHCPOption>{{ (string) ($settings['fanvil_dhcp_option'] ?? '') !== '' ? $settings['fanvil_dhcp_option'] : 66 }}</DHCPOption>
             <DHCPv6Option>0</DHCPv6Option>
             <DhcpOption120>0</DhcpOption120>
             <SaveDHCPOpion>0</SaveDHCPOpion>

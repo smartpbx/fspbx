@@ -371,7 +371,7 @@
             <PNPTransport>0</PNPTransport>
         </pnp>
         <opt>
-            <DHCPOption>66</DHCPOption>
+            <DHCPOption>{{ (string) ($settings['fanvil_dhcp_option'] ?? '') !== '' ? $settings['fanvil_dhcp_option'] : 66 }}</DHCPOption>
         </opt>
     </ap>
     <fwCheck>

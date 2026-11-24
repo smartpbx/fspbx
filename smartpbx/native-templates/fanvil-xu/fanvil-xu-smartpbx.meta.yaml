@@ -1,0 +1,19 @@
+# patchbay#4352 wave 3. Template content: fanvil-xu-smartpbx.tpl
+name: Fanvil XU (smartpbx)
+type: custom                      # provisioning_templates.type; loaded only for pilot devices, one at a time
+vendor: fanvil
+models: [X3U, X4U, X4U-V2, X5U, X6U]
+base:
+  name: XU Series
+  vendor_dir: fanvil
+  uuid: 3b9563d1-b4bf-41a7-a4ce-ddf51f20b60c
+  version: 1.1.3
+  source_file: resources/provisioning/fanvil/XU Series/template.blade.php (fspbx main at f367ebfd, incl. OtherPopup #16)
+version: 1.1.3-xu.1
+flavors: [mac.cfg]
+changes_vs_stock:
+  - sysConf/ap/opt/DHCPOption from setting fanvil_dhcp_option (default -> domain -> device); unset or empty = 66 (stock)
+settings_read:
+  new_in_this_template:
+    - fanvil_dhcp_option (66)
+secrets: none in the file
