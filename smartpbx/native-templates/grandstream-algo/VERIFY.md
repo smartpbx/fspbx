@@ -80,3 +80,9 @@ Negative control: the previous revision of ht80x with the setting unset rendered
 
 ## Accepted fixed credentials (review 3 item 5)
 Ported byte for byte from legacy, not tenant secrets, but pushed to every phone: Fanvil V67 `MenuPassword`/`KeyLockPassword`/admin password default `admin`; Algo `admin.pwd = algo`. Accepted diff = none (identical to legacy); replacing them is a separate decision.
+
+## DHCPOption from a setting (patchbay#4352 wave 3)
+
+`sysConf/ap/opt/DHCPOption` now reads `fanvil_dhcp_option` (default 66 when unset or empty, which is the old
+hard-coded value). It exists so a phone on an option-66 site can be moved to `/prov/` per device; see
+`../fanvil-xu/VERIFY.md`. Render with no setting: unchanged, 66.

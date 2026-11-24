@@ -44,3 +44,9 @@ Key-template devices (43 across 5 tenants, three rendered in the table): identic
 2. Duplicate `Fkey` indexes on the -initial devices today (which wins); and whether padding key 3 with an empty key is wanted.
 3. Custom PLC NMK on Genesis, Stewart, Capitol, Docks & Lifts sites: template pushes `HomePlugAV` only.
 4. `EmergencyCall` default is legacy 110 (override `fanvil_emergency_number`; Canada likely wants 911): decision, not changed silently.
+
+## DHCPOption from a setting (patchbay#4352 wave 3)
+
+`sysConf/ap/opt/DHCPOption` now reads `fanvil_dhcp_option` (default 66 when unset or empty, which is the old
+hard-coded value). It exists so a phone on an option-66 site can be moved to `/prov/` per device; see
+`../fanvil-xu/VERIFY.md`. Render with no setting: unchanged, 66.
