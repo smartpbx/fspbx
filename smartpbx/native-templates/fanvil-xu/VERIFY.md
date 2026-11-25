@@ -18,8 +18,24 @@ The same one-line change is in `fanvil-x210.tpl`, `x303-2wire.tpl` and `fanvil-v
 - Setting path: a probe copy reading `fanvil_provision_url` through the same expression rendered the device's
   `/prov/` value. So a device setting keyed by its subcategory reaches the expression.
 
-## Open: the "disabled" value
+## Bench result: the "disabled" value is `0` (X4U-V2 2.12.20, 2026-11-25, patchbay#4352 wave 3 step 2)
 
-The value that turns DHCP option use off is bench-probed on the X4U through the web UI (patchbay#4352 wave 3,
-step 2): set it off in the UI, then read the exported config's `DHCPOption`. Record that value here. Until then,
-put nothing in `fanvil_dhcp_option`.
+- Web UI `provision.htm`, select `SYS_OptionCustom_R` (`#dhcpOptionSelect`): `66` Option 66, `43` Option 43, `128`
+  Custom Option, `0` Disabled. The page's `display()` treats `0` like 66 and 43, so the custom field stays disabled.
+- In the UI: DHCP Option Disabled, Server Address `https://provision.smartpbx.io/prov/`, then Apply (no Autoprovision
+  Now). The text export changed exactly two lines: `Flash Server IP` (`/app/provision/` to `/prov/`) and
+  `DHCP Option :66` to `:0`.
+- Test X4U `0c383e73481c` (ewee 1014) has this file loaded as custom row `2365b988-ffac-44b1-9260-4198ffde401f`
+  (sha256 `c91f217a…`, byte-identical) and the device setting `fanvil_dhcp_option=0`. The harness render gives
+  `<DHCPOption>0</DHCPOption>` and `FlashServerIP` `/prov/`.
+- Two check-syncs of that phone alone, each a reboot: both pulled `/prov/0c383e73481c.cfg` (digest 401, then 200,
+  15,640 bytes). There has been no `/app/provision/` request since. The export after the second reboot still reads
+  `DHCP Option :0` and `/prov/`.
+
+Cutover rule this implies: legacy does not read `fanvil_dhcp_option` and keeps pushing 66. A phone on an option-66 site
+therefore has to reach `/prov/` once by another route before the setting does anything: its web UI (as above) or a
+change to the site's option 66. Set `0` per device only, never on DEFAULT or a domain.
+
+Web UI gotchas (fw 2.12.20): `GET /default_user_config.xml` hung the web server and the phone rebooted, so use
+`/default_user_config.txt`. Playwright `selectOption`/`fill` time out on `provision.htm` because the inputs report not
+visible. Set the values through the page JS, then click `DefaultSubmit`.
