@@ -145,7 +145,7 @@ Run on Clayton's test X4U `0c383e73481c` (tenant ewee, ext 1014) unless noted.
   (verified on an X210).
 - **P2, `TimeZone` blank vs `0`**: with `TimeZoneName=UTC-5`, does a literal `0` put the clock on UTC? The X210 template
   sends blank, which is what the X210s run now. Read the phone's current value first.
-  - **Result (X4U, 2026-11-25), config-level partly answered.** After the native "Fanvil XU (smartpbx)" pull, the X4U
+  - **Result P1 (X4U, 2026-11-25): partly answered at config level.** After the native "Fanvil XU (smartpbx)" pull, the X4U
     holds 13 ordinary BLFs as `/ba` and 2 as `/bc` (legacy wrote `bc` for all of them). `sideKey.htm` lists the BLF
     subtypes as `90` NEW CALL, `91` BXFER, `92` AXFER, `93` CONF, `94` DTMF and `95` END. If the letter follows that
     order, legacy `bc` is attended transfer on a press during a call and native `ba` is a new call. That would be a
