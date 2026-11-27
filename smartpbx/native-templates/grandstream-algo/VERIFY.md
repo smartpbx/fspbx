@@ -26,7 +26,7 @@ Fleet reality: there are only 3 HT80x, 1 HT818, 1 GXV3350, 2 Algo 8180, 7 Algo 8
 | gxv3350 | 100203 c074ad1aad48 | 1759/1760 identical (+wrapper tags, see D2) |
 | algo-8180 | 105220 0022ee22c6a6, 100165 0022ee196485 | 210/210 identical |
 | algo-8301 | 105229 c3d3, 100228 a85f, 100234 9f49, 104278 7079, 104670 9f80, 107562 ee64 | 688/689 identical, 1 intended diff (D3) + 26 harmless native-only keys (D4) |
-| fanvil-v67 | 104211 0c383e60ab89, 105389 0c383e616eb7 | 1518/1518 identical |
+| fanvil-v67 | 104211 0c383e60ab89, 105389 0c383e616eb7 | 1518/1518 identical at v1.0.1; v1.0.2 intentionally derives DSTType/DSTLocation from fanvil_enable_dst (patchbay#4542) |
 | ht881 (also HT841) | HT841 023631 ec74d721e4ac, 107638 ec74d7bf352e, 096978 ec74d7bf39c0 vs legacy ht841; HT881 105421, 107562, 107518 native only | HT841: all keys identical except 2 added URL keys (D5); 096978 differs (D6) |
 Algo 8301 devices carry legacy template name `algo/8103`, whose file is misnamed `algom{}.conf`, so real legacy requests 404. Their legacy baseline was rendered with a /tmp copy of the harness whose rewrite maps `algom<mac>.conf` to that file (same method as wave 1).
 
@@ -77,6 +77,12 @@ Rendered with the harness (`render.sh --legacy` vs `--native --template-file`, v
 | ht881 (HT841) | 023631, 107638 | P237 = legacy URL; only the 2 added URL keys (D5) | same |
 | fanvil-v67 | 104211, 105389 | FlashServerIP = `https://provision.smartpbx.io/app/provision/`; 1518/1518 identical | same |
 Negative control: the previous revision of ht80x with the setting unset rendered P237 as the /prov/ base on 105488; the fixed file does not. Algo is unaffected (unset and empty `algo_provision_url` already fall back to the legacy http tenant-domain URL).
+
+## No-DST correction (patchbay#4542)
+
+Fanvil V67 template v1.0.2 normalizes `fanvil_enable_dst` and uses it for both `Enable_DST` and `DSTType`.
+When disabled it renders `DSTLocation=0`; when enabled it uses `fanvil_location` (default 4). This is an intentional
+difference from the legacy file, which forced `DSTType=1` and could advance no-DST phones by one hour.
 
 ## Accepted fixed credentials (review 3 item 5)
 Ported byte for byte from legacy, not tenant secrets, but pushed to every phone: Fanvil V67 `MenuPassword`/`KeyLockPassword`/admin password default `admin`; Algo `admin.pwd = algo`. Accepted diff = none (identical to legacy); replacing them is a separate decision.

@@ -1,4 +1,4 @@
-{{-- version: 1.0.1 --}}
+{{-- version: 1.0.2 --}}
 {{-- Custom template: Fanvil X303-2 Wire. Ported from legacy fanvil/x303-2wire; cloned from stock XU Series 1.1.3. --}}
 {{-- See smartpbx/native-templates/fanvil-x303-2wire/VERIFY.md --}}
 
@@ -8,6 +8,11 @@
 @php
     // Legacy {if isset($v)}{$v}{else}D{/if}: a missing/null setting falls back to the default.
     $s = static fn (string $key, mixed $default = '') => $settings[$key] ?? $default;
+    $fanvilDstEnabled = in_array(
+        strtolower(trim((string) ($settings['fanvil_enable_dst'] ?? '0'))),
+        ['1', 'true', 'yes', 'on'],
+        true
+    ) ? 1 : 0;
 
     // Legacy $account.N.field. Lines are keyed by line number.
     $L = static fn (int $n, string $f) => $lines[$n][$f] ?? '';
@@ -1138,8 +1143,8 @@
             <TimeZoneName>{{ $s('fanvil_time_zone_name') }}</TimeZoneName>
             <SNTPTimeout>9600</SNTPTimeout>
             <SNTPFailRetryInterval>3600</SNTPFailRetryInterval>
-            <DSTType>1</DSTType>
-            <DSTLocation>{{ $s('fanvil_location', '2') }}</DSTLocation>
+            <DSTType>{{ $fanvilDstEnabled }}</DSTType>
+            <DSTLocation>{{ $fanvilDstEnabled ? $s('fanvil_location', '2') : '0' }}</DSTLocation>
             <DSTRuleMode>0</DSTRuleMode>
             <DSTMinOffset>{{ $s('fanvil_dst_minute_offset', '60') }}</DSTMinOffset>
             <DSTStartMon>3</DSTStartMon>
