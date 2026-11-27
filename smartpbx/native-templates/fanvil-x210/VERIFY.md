@@ -145,6 +145,16 @@ Run on Clayton's test X4U `0c383e73481c` (tenant ewee, ext 1014) unless noted.
   (verified on an X210).
 - **P2, `TimeZone` blank vs `0`**: with `TimeZoneName=UTC-5`, does a literal `0` put the clock on UTC? The X210 template
   sends blank, which is what the X210s run now. Read the phone's current value first.
+  - **Result P1 (X4U, 2026-11-25): partly answered at config level.** After the native "Fanvil XU (smartpbx)" pull, the X4U
+    holds 13 ordinary BLFs as `/ba` and 2 as `/bc` (legacy wrote `bc` for all of them). `sideKey.htm` lists the BLF
+    subtypes as `90` NEW CALL, `91` BXFER, `92` AXFER, `93` CONF, `94` DTMF and `95` END. If the letter follows that
+    order, legacy `bc` is attended transfer on a press during a call and native `ba` is a new call. That would be a
+    user-visible change. Still open: the letter-to-option mapping (read `SIDE_Key_MemorySubType_RW(n)` for a `ba`
+    key), and lamp and pickup behaviour by eye.
+  - **Result P2 (X4U, 2026-11-25): the name wins.** Under legacy the phone read `Time Zone :0`, `Time Zone Name :UTC`.
+    The native pull sends `TimeZone` 0 with `TimeZoneName` UTC-5 (ewee domain setting). The phone then stores
+    `Time Zone :-20` (15-minute units, so UTC-5) with name `UTC-5`, DST type 1. A literal `0` does not put the clock on
+    UTC when a `TimeZoneName` is sent. The on-screen clock was not read, because the web UI shows none.
 - **P3, X210 page model** on the 22V pair at cutover: 3 pages of 32, 10 side keys. The rendered keys are identical to
   legacy, so this confirms display only.
 - **P4, URL adoption**: a device-level `fanvil_provision_url` change is adopted on the next scheduled pull without a
