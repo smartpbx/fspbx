@@ -30,4 +30,4 @@ On-demand FS PBX agent rules. Not loaded on every call. `AGENTS.md` is the alway
 - Yealink templates should use `$main_keys` for `linekey.*` output and `$expansion_keys` for `expansion_module.1.key.*` output.
 - Yealink phone line keys should clear unused slots through 30; Yealink expansion module keys should clear unused slots through 60 per module.
 - Yealink devices can use the Expansion Keys tab in the device edit modal.
-
+- Fanvil templates must derive every DST enable/type field from `fanvil_enable_dst`; when it is off, render `DSTLocation=0`. Yealink no-DST behavior remains controlled by `yealink_summer_time`, and Polycom/Poly by `daylight_savings_enabled`.

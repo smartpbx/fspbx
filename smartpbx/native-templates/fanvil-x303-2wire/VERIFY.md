@@ -9,7 +9,7 @@ Notes: legacy has no `DssPage1` element; the Page key is an ordinary key (`*724@
 ## Legacy hard-codes vs variables (review of fspbx#10)
 Checked line by line against the legacy file `fanvil/x303-2wire/{$mac}.cfg` (legacy line numbers in brackets):
 - `HandsetVol` reads `fanvil_handset_volume`, default 5 [1053: `{if isset($fanvil_handset_volume)}{$fanvil_handset_volume}{else}5{/if}`]. The template does the same (`$s('fanvil_handset_volume', '5')`). Only `-initial` hard-codes 5.
-- DST: `DSTLocation` [1075, `fanvil_location`, default 2] and `DSTMinOffset` [1077, `fanvil_dst_minute_offset`, default 60] are variables in both. `DSTType` 1, `DSTRuleMode` 0 and the rule rows `DSTStartMon` 3 / Week 5 / Wday 0 / Hour 2 and `DSTEndMon` 10 / Week 5 / Wday 0 / Hour 2 [1074-1085] are literals in legacy too, so there is no per-tenant source to render; the template carries the same literals.
+- DST: `DSTMinOffset` [1077, `fanvil_dst_minute_offset`, default 60] remains a variable. Version 1.0.2 intentionally differs from legacy by deriving `DSTType` from `fanvil_enable_dst` and rendering `DSTLocation=0` when DST is off (patchbay#4542); when enabled, `fanvil_location` still defaults to 2. `DSTRuleMode` 0 and the rule rows `DSTStartMon` 3 / Week 5 / Wday 0 / Hour 2 and `DSTEndMon` 10 / Week 5 / Wday 0 / Hour 2 [1074-1085] remain the legacy literals.
 - `ModifyPlcNmk` is the literal `HomePlugAV` in legacy [1781]; no setting feeds it. Legacy never changes a phone's NMK after the first push, but native pushes `HomePlugAV` on every pull, so native WOULD reset a custom NMK. See gate 2.
 
 ## Cutover gates (hard, per tenant or device)

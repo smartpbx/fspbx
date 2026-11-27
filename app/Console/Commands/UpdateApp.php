@@ -55,6 +55,7 @@ use App\Console\Commands\Updates\Update197;
 use App\Console\Commands\Updates\Update198;
 use App\Console\Commands\Updates\Update199;
 use App\Console\Commands\Updates\Update200;
+use App\Console\Commands\Updates\Update201;
 use App\Console\Commands\Updates\Update0917;
 use App\Console\Commands\Updates\Update0918;
 use App\Console\Commands\Updates\Update0924;
@@ -186,6 +187,7 @@ class UpdateApp extends Command
             '1.9.8' => Update198::class,
             '1.9.9' => Update199::class,
             '2.0.0' => Update200::class,
+            '2.0.1' => Update201::class,
             // Add more versions as needed
         ];
 
@@ -219,6 +221,12 @@ class UpdateApp extends Command
             // Call version:set to update the version to the latest one, even if no steps were needed
             $this->call('version:set', ['version' => $downloadedVersion, '--force' => true]);
             $this->info("Version successfully updated to $downloadedVersion.");
+        }
+
+        // Update201 performs the first migration. Every later deployment
+        // re-syncs so FreeSWITCH cannot drift behind an updated host tzdata.
+        if (version_compare($currentVersion, '2.0.1', '>=')) {
+            $this->runArtisanCommand('freeswitch:sync-timezones');
         }
 
         // Composer install

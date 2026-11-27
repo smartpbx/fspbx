@@ -1,4 +1,5 @@
 name: fanvil-v67-smartpbx
+version: 1.0.2
 vendor: fanvil
 models: "Fanvil V64/V67"
 flavor: "mac.cfg (request <mac>.cfg)"

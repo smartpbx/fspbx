@@ -1,4 +1,5 @@
 <configuration name="timezones.conf" description="Timezones">
+	<!-- Generated from the host tzdata POSIX rules. Do not edit by hand. -->
 	<timezones>
 		<zone name="Africa/Abidjan" value="GMT0" />
 		<zone name="Africa/Accra" value="GMT0" />
@@ -14,14 +15,14 @@
 		<zone name="Africa/Brazzaville" value="WAT-1" />
 		<zone name="Africa/Bujumbura" value="CAT-2" />
 		<zone name="Africa/Cairo" value="EET-2EEST,M4.5.5/0,M10.5.4/24" />
-		<zone name="Africa/Casablanca" value="STD-1" />
+		<zone name="Africa/Casablanca" value="STD-0" />
 		<zone name="Africa/Ceuta" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Africa/Conakry" value="GMT0" />
 		<zone name="Africa/Dakar" value="GMT0" />
 		<zone name="Africa/Dar_es_Salaam" value="EAT-3" />
 		<zone name="Africa/Djibouti" value="EAT-3" />
 		<zone name="Africa/Douala" value="WAT-1" />
-		<zone name="Africa/El_Aaiun" value="STD-1" />
+		<zone name="Africa/El_Aaiun" value="STD-0" />
 		<zone name="Africa/Freetown" value="GMT0" />
 		<zone name="Africa/Gaborone" value="CAT-2" />
 		<zone name="Africa/Harare" value="CAT-2" />
@@ -54,7 +55,6 @@
 		<zone name="Africa/Tripoli" value="EET-2" />
 		<zone name="Africa/Tunis" value="CET-1" />
 		<zone name="Africa/Windhoek" value="CAT-2" />
-
 		<zone name="America/Adak" value="HST10HDT,M3.2.0,M11.1.0" />
 		<zone name="America/Anchorage" value="AKST9AKDT,M3.2.0,M11.1.0" />
 		<zone name="America/Anguilla" value="AST4" />
@@ -74,7 +74,7 @@
 		<zone name="America/Argentina/Tucuman" value="STD3" />
 		<zone name="America/Argentina/Ushuaia" value="STD3" />
 		<zone name="America/Aruba" value="AST4" />
-		<zone name="America/Asuncion" value="STD4DST,M10.1.0/0,M3.4.0/0" />
+		<zone name="America/Asuncion" value="STD3" />
 		<zone name="America/Atikokan" value="EST5" />
 		<zone name="America/Atka" value="HST10HDT,M3.2.0,M11.1.0" />
 		<zone name="America/Bahia" value="STD3" />
@@ -100,6 +100,7 @@
 		<zone name="America/Coral_Harbour" value="EST5" />
 		<zone name="America/Cordoba" value="STD3" />
 		<zone name="America/Costa_Rica" value="CST6" />
+		<zone name="America/Coyhaique" value="STD3" />
 		<zone name="America/Creston" value="MST7" />
 		<zone name="America/Cuiaba" value="STD4" />
 		<zone name="America/Curacao" value="AST4" />
@@ -109,7 +110,7 @@
 		<zone name="America/Denver" value="MST7MDT,M3.2.0,M11.1.0" />
 		<zone name="America/Detroit" value="EST5EDT,M3.2.0,M11.1.0" />
 		<zone name="America/Dominica" value="AST4" />
-		<zone name="America/Edmonton" value="MST7MDT,M3.2.0,M11.1.0" />
+		<zone name="America/Edmonton" value="CST6" />
 		<zone name="America/Eirunepe" value="STD5" />
 		<zone name="America/El_Salvador" value="CST6" />
 		<zone name="America/Ensenada" value="PST8PDT,M3.2.0,M11.1.0" />
@@ -137,7 +138,7 @@
 		<zone name="America/Indiana/Vincennes" value="EST5EDT,M3.2.0,M11.1.0" />
 		<zone name="America/Indiana/Winamac" value="EST5EDT,M3.2.0,M11.1.0" />
 		<zone name="America/Indianapolis" value="EST5EDT,M3.2.0,M11.1.0" />
-		<zone name="America/Inuvik" value="MST7MDT,M3.2.0,M11.1.0" />
+		<zone name="America/Inuvik" value="CST6" />
 		<zone name="America/Iqaluit" value="EST5EDT,M3.2.0,M11.1.0" />
 		<zone name="America/Jamaica" value="EST5" />
 		<zone name="America/Jujuy" value="STD3" />
@@ -189,7 +190,7 @@
 		<zone name="America/Porto_Velho" value="STD4" />
 		<zone name="America/Puerto_Rico" value="AST4" />
 		<zone name="America/Punta_Arenas" value="STD3" />
-		<zone name="America/Rainy_River" value="CST6CDT,M3.2.0,M11.1.0" />
+		<zone name="America/Rainy_River" value="EST5" />
 		<zone name="America/Rankin_Inlet" value="CST6CDT,M3.2.0,M11.1.0" />
 		<zone name="America/Recife" value="STD3" />
 		<zone name="America/Regina" value="CST6" />
@@ -201,7 +202,7 @@
 		<zone name="America/Santiago" value="STD4DST,M9.1.6/24,M4.1.6/24" />
 		<zone name="America/Santo_Domingo" value="AST4" />
 		<zone name="America/Sao_Paulo" value="STD3" />
-		<zone name="America/Scoresbysund" value="STD1DST,M3.5.0/0,M10.5.0/1" />
+		<zone name="America/Scoresbysund" value="STD2DST,M3.5.0/-1,M10.5.0/0" />
 		<zone name="America/Shiprock" value="MST7MDT,M3.2.0,M11.1.0" />
 		<zone name="America/Sitka" value="AKST9AKDT,M3.2.0,M11.1.0" />
 		<zone name="America/St_Barthelemy" value="AST4" />
@@ -217,14 +218,13 @@
 		<zone name="America/Tijuana" value="PST8PDT,M3.2.0,M11.1.0" />
 		<zone name="America/Toronto" value="EST5EDT,M3.2.0,M11.1.0" />
 		<zone name="America/Tortola" value="AST4" />
-		<zone name="America/Vancouver" value="PST8PDT,M3.2.0,M11.1.0" />
+		<zone name="America/Vancouver" value="MST7" />
 		<zone name="America/Virgin" value="AST4" />
 		<zone name="America/Whitehorse" value="MST7" />
-		<zone name="America/Winnipeg" value="CST6CDT,M3.2.0,M11.1.0" />
+		<zone name="America/Winnipeg" value="EST5" />
 		<zone name="America/Yakutat" value="AKST9AKDT,M3.2.0,M11.1.0" />
-		<zone name="America/Yellowknife" value="MST7MDT,M3.2.0,M11.1.0" />
-
-		<zone name="Antarctica/Casey" value="STD-11" />
+		<zone name="America/Yellowknife" value="CST6" />
+		<zone name="Antarctica/Casey" value="STD-8" />
 		<zone name="Antarctica/Davis" value="STD-7" />
 		<zone name="Antarctica/DumontDUrville" value="STD-10" />
 		<zone name="Antarctica/Macquarie" value="AEST-10AEDT,M10.1.0,M4.1.0/3" />
@@ -235,12 +235,10 @@
 		<zone name="Antarctica/South_Pole" value="NZST-12NZDT,M9.5.0,M4.1.0/3" />
 		<zone name="Antarctica/Syowa" value="STD-3" />
 		<zone name="Antarctica/Troll" value="STD-0DST-2,M3.5.0/1,M10.5.0/3" />
-		<zone name="Antarctica/Vostok" value="STD-6" />
-
+		<zone name="Antarctica/Vostok" value="STD-5" />
 		<zone name="Arctic/Longyearbyen" value="CET-1CEST,M3.5.0,M10.5.0/3" />
-
 		<zone name="Asia/Aden" value="STD-3" />
-		<zone name="Asia/Almaty" value="STD-6" />
+		<zone name="Asia/Almaty" value="STD-5" />
 		<zone name="Asia/Amman" value="STD-3" />
 		<zone name="Asia/Anadyr" value="STD-12" />
 		<zone name="Asia/Aqtau" value="STD-5" />
@@ -307,7 +305,7 @@
 		<zone name="Asia/Pontianak" value="WIB-7" />
 		<zone name="Asia/Pyongyang" value="KST-9" />
 		<zone name="Asia/Qatar" value="STD-3" />
-		<zone name="Asia/Qostanay" value="STD-6" />
+		<zone name="Asia/Qostanay" value="STD-5" />
 		<zone name="Asia/Qyzylorda" value="STD-5" />
 		<zone name="Asia/Rangoon" value="STD-6:30" />
 		<zone name="Asia/Riyadh" value="STD-3" />
@@ -338,7 +336,6 @@
 		<zone name="Asia/Yangon" value="STD-6:30" />
 		<zone name="Asia/Yekaterinburg" value="STD-5" />
 		<zone name="Asia/Yerevan" value="STD-4" />
-
 		<zone name="Atlantic/Azores" value="STD1DST,M3.5.0/0,M10.5.0/1" />
 		<zone name="Atlantic/Bermuda" value="AST4ADT,M3.2.0,M11.1.0" />
 		<zone name="Atlantic/Canary" value="WET0WEST,M3.5.0/1,M10.5.0" />
@@ -351,7 +348,6 @@
 		<zone name="Atlantic/South_Georgia" value="STD2" />
 		<zone name="Atlantic/St_Helena" value="GMT0" />
 		<zone name="Atlantic/Stanley" value="STD3" />
-
 		<zone name="Australia/ACT" value="AEST-10AEDT,M10.1.0,M4.1.0/3" />
 		<zone name="Australia/Adelaide" value="ACST-9:30ACDT,M10.1.0,M4.1.0/3" />
 		<zone name="Australia/Brisbane" value="AEST-10" />
@@ -375,40 +371,28 @@
 		<zone name="Australia/Victoria" value="AEST-10AEDT,M10.1.0,M4.1.0/3" />
 		<zone name="Australia/West" value="AWST-8" />
 		<zone name="Australia/Yancowinna" value="ACST-9:30ACDT,M10.1.0,M4.1.0/3" />
-
 		<zone name="Brazil/Acre" value="STD5" />
 		<zone name="Brazil/DeNoronha" value="STD2" />
 		<zone name="Brazil/East" value="STD3" />
 		<zone name="Brazil/West" value="STD4" />
-
 		<zone name="CET" value="CET-1CEST,M3.5.0,M10.5.0/3" />
-
 		<zone name="CST6CDT" value="CST6CDT,M3.2.0,M11.1.0" />
-
 		<zone name="Canada/Atlantic" value="AST4ADT,M3.2.0,M11.1.0" />
-		<zone name="Canada/Central" value="CST6CDT,M3.2.0,M11.1.0" />
+		<zone name="Canada/Central" value="EST5" />
 		<zone name="Canada/Eastern" value="EST5EDT,M3.2.0,M11.1.0" />
-		<zone name="Canada/Mountain" value="MST7MDT,M3.2.0,M11.1.0" />
+		<zone name="Canada/Mountain" value="CST6" />
 		<zone name="Canada/Newfoundland" value="NST3:30NDT,M3.2.0,M11.1.0" />
-		<zone name="Canada/Pacific" value="PST8PDT,M3.2.0,M11.1.0" />
+		<zone name="Canada/Pacific" value="MST7" />
 		<zone name="Canada/Saskatchewan" value="CST6" />
 		<zone name="Canada/Yukon" value="MST7" />
-
 		<zone name="Chile/Continental" value="STD4DST,M9.1.6/24,M4.1.6/24" />
 		<zone name="Chile/EasterIsland" value="STD6DST,M9.1.6/22,M4.1.6/22" />
-
 		<zone name="Cuba" value="CST5CDT,M3.2.0/0,M11.1.0/1" />
-
 		<zone name="EET" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
-
 		<zone name="EST" value="EST5" />
-
 		<zone name="EST5EDT" value="EST5EDT,M3.2.0,M11.1.0" />
-
 		<zone name="Egypt" value="EET-2EEST,M4.5.5/0,M10.5.4/24" />
-
 		<zone name="Eire" value="IST-1GMT0,M10.5.0,M3.5.0/1" />
-
 		<zone name="Etc/GMT" value="GMT0" />
 		<zone name="Etc/GMT+0" value="GMT0" />
 		<zone name="Etc/GMT+1" value="GMT1" />
@@ -444,7 +428,6 @@
 		<zone name="Etc/UTC" value="UTC0" />
 		<zone name="Etc/Universal" value="UTC0" />
 		<zone name="Etc/Zulu" value="UTC0" />
-
 		<zone name="Europe/Amsterdam" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Europe/Andorra" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Europe/Astrakhan" value="STD-4" />
@@ -457,7 +440,7 @@
 		<zone name="Europe/Bucharest" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
 		<zone name="Europe/Budapest" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Europe/Busingen" value="CET-1CEST,M3.5.0,M10.5.0/3" />
-		<zone name="Europe/Chisinau" value="EET-2EEST,M3.5.0,M10.5.0/3" />
+		<zone name="Europe/Chisinau" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
 		<zone name="Europe/Copenhagen" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Europe/Dublin" value="IST-1GMT0,M10.5.0,M3.5.0/1" />
 		<zone name="Europe/Gibraltar" value="CET-1CEST,M3.5.0,M10.5.0/3" />
@@ -497,7 +480,7 @@
 		<zone name="Europe/Stockholm" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Europe/Tallinn" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
 		<zone name="Europe/Tirane" value="CET-1CEST,M3.5.0,M10.5.0/3" />
-		<zone name="Europe/Tiraspol" value="EET-2EEST,M3.5.0,M10.5.0/3" />
+		<zone name="Europe/Tiraspol" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
 		<zone name="Europe/Ulyanovsk" value="STD-4" />
 		<zone name="Europe/Uzhgorod" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
 		<zone name="Europe/Vaduz" value="CET-1CEST,M3.5.0,M10.5.0/3" />
@@ -509,29 +492,17 @@
 		<zone name="Europe/Zagreb" value="CET-1CEST,M3.5.0,M10.5.0/3" />
 		<zone name="Europe/Zaporozhye" value="EET-2EEST,M3.5.0/3,M10.5.0/4" />
 		<zone name="Europe/Zurich" value="CET-1CEST,M3.5.0,M10.5.0/3" />
-
 		<zone name="Factory" value="STD0" />
-
 		<zone name="GB" value="GMT0BST,M3.5.0/1,M10.5.0" />
-
 		<zone name="GB-Eire" value="GMT0BST,M3.5.0/1,M10.5.0" />
-
 		<zone name="GMT" value="GMT0" />
-
 		<zone name="GMT+0" value="GMT0" />
-
 		<zone name="GMT-0" value="GMT0" />
-
 		<zone name="GMT0" value="GMT0" />
-
 		<zone name="Greenwich" value="GMT0" />
-
 		<zone name="HST" value="HST10" />
-
 		<zone name="Hongkong" value="HKT-8" />
-
 		<zone name="Iceland" value="GMT0" />
-
 		<zone name="Indian/Antananarivo" value="EAT-3" />
 		<zone name="Indian/Chagos" value="STD-6" />
 		<zone name="Indian/Christmas" value="STD-7" />
@@ -543,39 +514,23 @@
 		<zone name="Indian/Mauritius" value="STD-4" />
 		<zone name="Indian/Mayotte" value="EAT-3" />
 		<zone name="Indian/Reunion" value="STD-4" />
-
 		<zone name="Iran" value="STD-3:30" />
-
 		<zone name="Israel" value="IST-2IDT,M3.4.4/26,M10.5.0" />
-
 		<zone name="Jamaica" value="EST5" />
-
 		<zone name="Japan" value="JST-9" />
-
 		<zone name="Kwajalein" value="STD-12" />
-
 		<zone name="Libya" value="EET-2" />
-
 		<zone name="MET" value="MET-1MEST,M3.5.0,M10.5.0/3" />
-
 		<zone name="MST" value="MST7" />
-
 		<zone name="MST7MDT" value="MST7MDT,M3.2.0,M11.1.0" />
-
 		<zone name="Mexico/BajaNorte" value="PST8PDT,M3.2.0,M11.1.0" />
 		<zone name="Mexico/BajaSur" value="MST7" />
 		<zone name="Mexico/General" value="CST6" />
-
 		<zone name="NZ" value="NZST-12NZDT,M9.5.0,M4.1.0/3" />
-
 		<zone name="NZ-CHAT" value="STD-12:45DST,M9.5.0/2:45,M4.1.0/3:45" />
-
 		<zone name="Navajo" value="MST7MDT,M3.2.0,M11.1.0" />
-
 		<zone name="PRC" value="CST-8" />
-
 		<zone name="PST8PDT" value="PST8PDT,M3.2.0,M11.1.0" />
-
 		<zone name="Pacific/Apia" value="STD-13" />
 		<zone name="Pacific/Auckland" value="NZST-12NZDT,M9.5.0,M4.1.0/3" />
 		<zone name="Pacific/Bougainville" value="STD-11" />
@@ -620,21 +575,13 @@
 		<zone name="Pacific/Wake" value="STD-12" />
 		<zone name="Pacific/Wallis" value="STD-12" />
 		<zone name="Pacific/Yap" value="STD-10" />
-
 		<zone name="Poland" value="CET-1CEST,M3.5.0,M10.5.0/3" />
-
 		<zone name="Portugal" value="WET0WEST,M3.5.0/1,M10.5.0" />
-
 		<zone name="ROC" value="CST-8" />
-
 		<zone name="ROK" value="KST-9" />
-
 		<zone name="Singapore" value="STD-8" />
-
 		<zone name="Turkey" value="STD-3" />
-
 		<zone name="UCT" value="UTC0" />
-
 		<zone name="US/Alaska" value="AKST9AKDT,M3.2.0,M11.1.0" />
 		<zone name="US/Aleutian" value="HST10HDT,M3.2.0,M11.1.0" />
 		<zone name="US/Arizona" value="MST7" />
@@ -647,15 +594,10 @@
 		<zone name="US/Mountain" value="MST7MDT,M3.2.0,M11.1.0" />
 		<zone name="US/Pacific" value="PST8PDT,M3.2.0,M11.1.0" />
 		<zone name="US/Samoa" value="SST11" />
-
 		<zone name="UTC" value="UTC0" />
-
 		<zone name="Universal" value="UTC0" />
-
 		<zone name="W-SU" value="MSK-3" />
-
 		<zone name="WET" value="WET0WEST,M3.5.0/1,M10.5.0" />
-
 		<zone name="Zulu" value="UTC0" />
 	</timezones>
 </configuration>

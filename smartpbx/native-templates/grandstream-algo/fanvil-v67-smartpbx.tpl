@@ -1,4 +1,4 @@
-{{-- version: 1.0.1 | Fanvil V67 | smartpbx custom native template, ported from the legacy Smarty file (patchbay#4352). SubExpire reads fanvil_subscribe_expires (patchbay#4456). Edit in git: smartpbx/fspbx smartpbx/native-templates/grandstream-algo/ --}}
+{{-- version: 1.0.2 | Fanvil V67 | smartpbx custom native template, ported from the legacy Smarty file (patchbay#4352). SubExpire reads fanvil_subscribe_expires (patchbay#4456). Edit in git: smartpbx/fspbx smartpbx/native-templates/grandstream-algo/ --}}
 @switch($flavor)
 
 @case('mac.cfg')
@@ -19,6 +19,11 @@
     if ($fanvilSubscribeExpires === '') {
         $fanvilSubscribeExpires = null;
     }
+    $fanvilDstEnabled = in_array(
+        strtolower(trim((string) ($settings['fanvil_enable_dst'] ?? '0'))),
+        ['1', 'true', 'yes', 'on'],
+        true
+    ) ? 1 : 0;
 @endphp
 <?xml version="1.0" encoding="UTF-8"?>
 <sysConf>
@@ -541,11 +546,11 @@
             <TimeZone>{{ ($settings['fanvil_time_zone'] ?? '') }}</TimeZone>
             <TimeZoneName>{{ ($settings['fanvil_time_zone_name'] ?? '') }}</TimeZoneName>
             <SNTPTimeout>60</SNTPTimeout>
-            <Enable_DST>{{ ($settings['fanvil_enable_dst'] ?? '') }}</Enable_DST>
+            <Enable_DST>{{ $fanvilDstEnabled }}</Enable_DST>
             <DST_Fixed_Type>@if(isset($settings['fanvil_dst_fixed_type'])){{ ($settings['fanvil_dst_fixed_type'] ?? '') }}@else()0{{ '' }}@endif()</DST_Fixed_Type>
             <SNTPTimeout>60</SNTPTimeout>
-            <DSTType>1</DSTType>
-            <DSTLocation>@if(isset($settings['fanvil_location'])){{ ($settings['fanvil_location'] ?? '') }}@else()4{{ '' }}@endif()</DSTLocation>
+            <DSTType>{{ $fanvilDstEnabled }}</DSTType>
+            <DSTLocation>{{ $fanvilDstEnabled ? ($settings['fanvil_location'] ?? 4) : 0 }}</DSTLocation>
             <DSTRuleMode>0</DSTRuleMode>
             <DSTMinOffset>@if(isset($settings['fanvil_dst_minute_offset'])){{ ($settings['fanvil_dst_minute_offset'] ?? '') }}@else()60{{ '' }}@endif()</DSTMinOffset>
             <DSTStartMon>3</DSTStartMon>
